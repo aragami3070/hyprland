@@ -19,6 +19,7 @@
     "memory",
     "network",
     "temperature",
+    "custom/powermenu",
     ],
     "hyprland/window": {
       "format": "{}",
@@ -92,4 +93,9 @@
       },
       "on-click": "pavucontrol"
     },
+    "custom/powermenu": {
+      "format": "  ",
+      "tooltip": false,
+      "on-click": "exec wlogout -p layer-shell"
+  },
 }
