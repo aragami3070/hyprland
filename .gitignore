@@ -1,9 +1,11 @@
 */
 dolphinrc
 baloofileinformationrc
+QtProject.conf
 !hypr/
 !hypr/Wallpapers/
-!hypr/Wallpapers/Catppuccin
-!wofi
-!waybar
+!hypr/Wallpapers/Catppuccin/
+!wofi/
+!waybar/
+!LoginTheme/
 !.git
