@@ -1,5 +1,9 @@
 [Default Applications]
 application/pdf=org.pwmt.zathura-pdf-mupdf.desktop
+application/vnd.openxmlformats-officedocument.wordprocessingml.document=org.pwmt.zathura-pdf-mupdf.desktop
+application/zip=org.kde.dolphin.desktop
 
 [Added Associations]
 application/pdf=org.pwmt.zathura-pdf-mupdf.desktop;
+application/vnd.openxmlformats-officedocument.wordprocessingml.document=org.pwmt.zathura-pdf-mupdf.desktop;
+application/zip=org.kde.dolphin.desktop;
