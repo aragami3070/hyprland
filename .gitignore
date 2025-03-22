@@ -25,3 +25,6 @@ yay/
 AmneziaVPN.ORG/
 Unknown Organization/
 zoom*.conf
+
+tmux/plugins/tmux/
+tmux/plugins/tpm/
