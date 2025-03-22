@@ -11,6 +11,7 @@ session/
 pulse/
 nwg-look/
 nvim/
+one-nvim/
 neofetch/
 kitty/
 kde.org/
@@ -26,3 +27,8 @@ hyprland/
 yarn/
 Code/
 AmneziaVPN.ORG/
+Unknown Organization/
+zoom*.conf
+
+tmux/plugins/tmux/
+tmux/plugins/tpm/
