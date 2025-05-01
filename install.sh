@@ -27,5 +27,15 @@ printBanner() {
     echo -e "${green}   ╰────────────────────────────────────────────────────────────────────────────────────────────────╯${reset}"
 }
 
-printBanner
+abortIfNotArch() {
+    if ! grep -q "arch" /etc/os-release; then
+        echo -e "${red}    This script is designed to run on Arch Linux. Exiting.${reset}"
+        exit 1
+	else
+		echo -e "${green}    Nice system choice ^_^${reset}"
+    fi
+}
 
+
+abortIfNotArch
+printBanner
