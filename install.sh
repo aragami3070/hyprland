@@ -45,7 +45,17 @@ abortIfRoot() {
     fi
 }
 
+yayInstall () {
+	echo -e "${blue}    Installing yay...${reset}"
+    git clone https://aur.archlinux.org/yay.git "${HOME}/yay"
+	cd "$HOME/yay"
+	makepkg -si --noconfirm
+	cd - &>/dev/null
+	echo -e "${green}✔ Yay installed successfully.${reset}"
+}
 
 abortIfNotArch
 abortIfRoot
 printBanner
+
+yayInstall
