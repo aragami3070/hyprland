@@ -54,26 +54,37 @@ yayInstall() {
 	echo -e "${green}    ✔ Yay installed successfully.${reset}"
 }
 
-# work in progress
+# Work in progress
 packagesInstall() {
 	echo -e "${blue}    Installing required packages...${reset}"
 	# pacman install without confirm and not reinstall installed packages
 	sudo pacman -Syu --noconfirm --needed \
 		zsh gcc nvim ripgrep wl-clipboard pipewire pam  brightnessctl thunar zip unzip python3 \
-		curl npm yarn cmake eza fastfetch tmux postgres docker docker-comopose
+		firefox chromium telegram-desktop curl npm yarn cmake eza fastfetch tmux postgres docker \
+		docker-comopose hyprlock hyprpaper waybar nwg-look ttf-ubuntu-nerd wofi zoxide zathura \
+		metasploit virtualbox typescript vue-typescript-plugin qt6-svg qt6-declarative qt5-quickcontrols2\
+		man-pages-ru tldr python-pygments python-pip dotnet-runtime-8.0 aspnet-runtime-8.0 gtk-engine-murrine \
+		meson wlogout mpv nmap gnu-netcat ghidra
 
-	# yay install
+	# yay install without confirm and not reinstall installed packages
 	yay -Syu --noconfirm --needed \
-		texlive texlive-fontsextra texlive-langcyrillic 
+		texlive texlive-fontsextra texlive-langcyrillic hyprshot burpsuite gobuster zoom
 	
 	# cargo install
 	cargo install typst-cli
 
-	echo -e "${green}✔ Packages installed.${reset}"
+	echo -e "${green}    ✔ Packages installed.${reset}"
 }
 
+# Preparation to installation
 abortIfNotArch
 abortIfRoot
 printBanner
 
+# Installing packages and tools
+echo -e "${blue}    Installing packages and tools...${reset}"
 yayInstall
+packagesInstall
+echo -e "${green}    ✔ Packages installed.${reset}"
+
+# Other
