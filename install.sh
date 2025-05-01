@@ -71,6 +71,7 @@ AmneziaInstall() {
 # 1. Figure out how to automate the build from AmneziaInstall
 # 2. Write setup main (all setup)
 # 3. Write setup oh-my-zsh
+# 4. Add checking if yay and amnezia are installed
 
 # NOTE: Work in progress
 packagesInstall() {
