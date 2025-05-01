@@ -45,13 +45,31 @@ abortIfRoot() {
     fi
 }
 
-yayInstall () {
+yayInstall() {
 	echo -e "${blue}    Installing yay...${reset}"
     git clone https://aur.archlinux.org/yay.git "${HOME}/yay"
 	cd "$HOME/yay"
 	makepkg -si --noconfirm
 	cd - &>/dev/null
-	echo -e "${green}✔ Yay installed successfully.${reset}"
+	echo -e "${green}    ✔ Yay installed successfully.${reset}"
+}
+
+# work in progress
+packagesInstall() {
+	echo -e "${blue}    Installing required packages...${reset}"
+	# pacman install without confirm and not reinstall installed packages
+	sudo pacman -Syu --noconfirm --needed \
+		zsh gcc nvim ripgrep wl-clipboard pipewire pam  brightnessctl thunar zip unzip python3 \
+		curl npm yarn cmake eza fastfetch tmux postgres docker docker-comopose
+
+	# yay install
+	yay -Syu --noconfirm --needed \
+		texlive texlive-fontsextra texlive-langcyrillic 
+	
+	# cargo install
+	cargo install typst-cli
+
+	echo -e "${green}✔ Packages installed.${reset}"
 }
 
 abortIfNotArch
