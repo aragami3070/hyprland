@@ -36,6 +36,16 @@ abortIfNotArch() {
     fi
 }
 
+abortIfRoot() {
+    if [ "$(id -u)" -eq 0 ]; then
+        echo -e "${red}    Please do not run this script as root. Exiting.${reset}"
+        exit 1
+	else
+		echo -e "${green}    Welcome $USER${reset}"
+    fi
+}
+
 
 abortIfNotArch
+abortIfRoot
 printBanner
