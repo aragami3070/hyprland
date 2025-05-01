@@ -54,8 +54,32 @@ yayInstall() {
 	echo -e "${green}    ✔ Yay installed successfully.${reset}"
 }
 
-# Work in progress
+AmneziaInstall() {
+	mkdir "$HOME/Amnezia"
+	cd "$HOME/Amnezia"
+	wget https://github.com/amnezia-vpn/amnezia-client/releases/download/4.8.3.1/AmneziaVPN_4.8.3.1_linux.tar.zip
+	unzip AmneziaVPN_4.8.3.1_linux.tar.zip
+	tar -xvf AmneziaVPN_Linux_Installer.ta
+	chmod +x AmneziaVPN_Linux_Installer.bin
+	cd - &>/dev/null
+	# TODO: Figure out how to automate the build
+	# sudo ./AmneziaVPN_Linux_Installer.bin
+}
+
+
+# TODO:
+# 1. Figure out how to automate the build from AmneziaInstall
+# 2. Write setup main (all setup)
+# 3. Write setup oh-my-zsh
+
+# NOTE: Work in progress
 packagesInstall() {
+	# Install yay
+	yayInstall
+
+	# Install Amnezia
+	# AmneziaInstall
+
 	echo -e "${blue}    Installing required packages...${reset}"
 	# pacman install without confirm and not reinstall installed packages
 	sudo pacman -Syu --noconfirm --needed \
@@ -83,7 +107,6 @@ printBanner
 
 # Installing packages and tools
 echo -e "${blue}    Installing packages and tools...${reset}"
-yayInstall
 packagesInstall
 echo -e "${green}    ✔ Packages installed.${reset}"
 
