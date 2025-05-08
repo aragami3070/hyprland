@@ -45,6 +45,10 @@ abortIfRoot() {
     fi
 }
 
+checkCommand() {
+	command -v "$1" &>/dev/null
+}
+
 yayInstall() {
 	echo -e "${blue}    Installing yay...${reset}"
     git clone https://aur.archlinux.org/yay.git "${HOME}/yay"
@@ -76,27 +80,44 @@ AmneziaInstall() {
 # NOTE: Work in progress
 packagesInstall() {
 	# Install yay
-	yayInstall
+	if checkCommand "yay"; then
+		echo -e "${green}    ✔ Yay is already installed.${reset}"
+	else
+		yayInstall
+	fi
 
 	# Install Amnezia
-	# AmneziaInstall
+	if checkCommand "AmneziaVPN"; then
+		echo -e "${green}    ✔ AmneziaVPN is already installed.${reset}"
+	else
+		echo -e "${green}    ✔ AmneziaVPN installed.${reset}"
+		# AmneziaInstall
+	fi
 
 	echo -e "${blue}    Installing required packages...${reset}"
 	# pacman install without confirm and not reinstall installed packages
 	sudo pacman -Syu --noconfirm --needed \
 		zsh gcc nvim ripgrep wl-clipboard pipewire pam  brightnessctl thunar zip unzip python3 \
-		firefox chromium telegram-desktop curl npm yarn cmake eza fastfetch tmux postgres docker \
-		docker-comopose hyprlock hyprpaper waybar nwg-look ttf-ubuntu-nerd wofi zoxide zathura \
+		firefox chromium telegram-desktop curl npm yarn cmake eza fastfetch tmux postgresql docker \
+		docker-compose hyprlock hyprpaper waybar nwg-look ttf-ubuntu-nerd wofi zoxide zathura \
 		metasploit virtualbox typescript vue-typescript-plugin qt6-svg qt6-declarative qt5-quickcontrols2\
 		man-pages-ru tldr python-pygments python-pip dotnet-runtime-8.0 aspnet-runtime-8.0 gtk-engine-murrine \
-		meson wlogout mpv nmap gnu-netcat ghidra
+		meson mpv nmap gnu-netcat ghidra
 
+	echo -e "${green}    ✔ Pacman packages installed.${reset}"
 	# yay install without confirm and not reinstall installed packages
+	# BUG: yay stop working without vpn. unlucky :(
 	yay -Syu --noconfirm --needed \
 		texlive texlive-fontsextra texlive-langcyrillic hyprshot burpsuite gobuster zoom
+	echo -e "${green}    ✔ Yay packages installed.${reset}"
 	
 	# cargo install
-	cargo install typst-cli
+	if checkCommand "typst"; then
+		echo -e "${green}    ✔ Typst is already installed.${reset}"
+	else
+		cargo install typst-cli
+		echo -e "${green}    ✔ Typst installed.${reset}"
+	fi
 
 	echo -e "${green}    ✔ Packages installed.${reset}"
 }
@@ -109,6 +130,6 @@ printBanner
 # Installing packages and tools
 echo -e "${blue}    Installing packages and tools...${reset}"
 packagesInstall
-echo -e "${green}    ✔ Packages installed.${reset}"
+echo -e "${green}    ✔ All packages installed.${reset}"
 
 # Other
