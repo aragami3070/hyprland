@@ -97,18 +97,20 @@ packagesInstall() {
 	echo -e "${blue}    Installing required packages...${reset}"
 	# pacman install without confirm and not reinstall installed packages
 	sudo pacman -Syu --noconfirm --needed \
-		zsh gcc nvim ripgrep wl-clipboard pipewire pam  brightnessctl thunar zip unzip python3 \
-		firefox chromium telegram-desktop curl npm yarn cmake eza fastfetch tmux postgresql docker \
-		docker-compose hyprlock hyprpaper waybar nwg-look ttf-ubuntu-nerd wofi zoxide zathura \
-		metasploit virtualbox typescript vue-typescript-plugin qt6-svg qt6-declarative qt5-quickcontrols2\
-		man-pages-ru tldr python-pygments python-pip dotnet-runtime-8.0 aspnet-runtime-8.0 gtk-engine-murrine \
-		meson mpv nmap gnu-netcat ghidra
+		zsh gcc nvim ripgrep wl-clipboard pipewire pam  brightnessctl thunar zip \
+		unzip python3 firefox chromium telegram-desktop curl rustup npm yarn cmake \
+		eza fastfetch tmux postgresql docker docker-compose hyprlock hyprpaper waybar \
+		nwg-look ttf-ubuntu-nerd wofi zoxide zathura metasploit virtualbox typescript \
+		vue-typescript-plugin qt6-svg qt6-declarative qt5-quickcontrols2 man-pages-ru \
+		tldr python-pygments python-pip dotnet-runtime-8.0 aspnet-runtime-8.0 \
+		gtk-engine-murrine meson mpv nmap gnu-netcat ghidra socat birdfont
 
 	echo -e "${green}    ✔ Pacman packages installed.${reset}"
 	# yay install without confirm and not reinstall installed packages
 	# BUG: yay stop working without vpn. unlucky :(
 	yay -Syu --noconfirm --needed \
-		texlive texlive-fontsextra texlive-langcyrillic hyprshot burpsuite gobuster zoom
+		texlive texlive-fontsextra texlive-langcyrillic hyprshot burpsuite gobuster zoom \
+		ethersync-bin
 	echo -e "${green}    ✔ Yay packages installed.${reset}"
 	
 	# cargo install
