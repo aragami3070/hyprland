@@ -10,7 +10,7 @@ red="\033[1;31m"
 reset="\033[0m"
 
 AmneziaInstall() {
-	echo -e "${blue}    Installing yay...${reset}"
+	echo -e "${blue}    Installing Amnezia...${reset}"
 	mkdir "$HOME/Amnezia"
 	cd "$HOME/Amnezia"
 	wget https://github.com/amnezia-vpn/amnezia-client/releases/download/4.8.3.1/AmneziaVPN_4.8.3.1_linux.tar.zip
