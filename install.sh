@@ -107,7 +107,6 @@ packagesInstall() {
 
 	echo -e "${green}    ✔ Pacman packages installed.${reset}"
 	# yay install without confirm and not reinstall installed packages
-	# BUG: yay stop working without vpn. unlucky :(
 	yay -Syu --noconfirm --needed \
 		texlive texlive-fontsextra texlive-langcyrillic hyprshot burpsuite gobuster zoom \
 		ethersync-bin
