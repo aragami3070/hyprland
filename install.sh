@@ -58,25 +58,6 @@ yayInstall() {
 	echo -e "${green}    ✔ Yay installed successfully.${reset}"
 }
 
-AmneziaInstall() {
-	mkdir "$HOME/Amnezia"
-	cd "$HOME/Amnezia"
-	wget https://github.com/amnezia-vpn/amnezia-client/releases/download/4.8.3.1/AmneziaVPN_4.8.3.1_linux.tar.zip
-	unzip AmneziaVPN_4.8.3.1_linux.tar.zip
-	tar -xvf AmneziaVPN_Linux_Installer.ta
-	chmod +x AmneziaVPN_Linux_Installer.bin
-	cd - &>/dev/null
-	# TODO: Figure out how to automate the build
-	# sudo ./AmneziaVPN_Linux_Installer.bin
-}
-
-
-# TODO:
-# 1. Figure out how to automate the build from AmneziaInstall
-# 2. Write setup main (all setup)
-# 3. Write setup oh-my-zsh
-# 4. Add checking if yay and amnezia are installed
-
 # NOTE: Work in progress
 packagesInstall() {
 	# Install yay
@@ -84,14 +65,6 @@ packagesInstall() {
 		echo -e "${green}    ✔ Yay is already installed.${reset}"
 	else
 		yayInstall
-	fi
-
-	# Install Amnezia
-	if checkCommand "AmneziaVPN"; then
-		echo -e "${green}    ✔ AmneziaVPN is already installed.${reset}"
-	else
-		echo -e "${green}    ✔ AmneziaVPN installed.${reset}"
-		# AmneziaInstall
 	fi
 
 	echo -e "${blue}    Installing required packages...${reset}"
@@ -132,5 +105,3 @@ printBanner
 echo -e "${blue}    Installing packages and tools...${reset}"
 packagesInstall
 echo -e "${green}    ✔ All packages installed.${reset}"
-
-# Other

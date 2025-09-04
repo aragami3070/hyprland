@@ -21,3 +21,11 @@ AmneziaInstall() {
 	cd - &>/dev/null
 	echo -e "${green}    Amnezia installed...${reset}"
 }
+
+# Install Amnezia
+if checkCommand "AmneziaVPN"; then
+	echo -e "${green}    ✔ AmneziaVPN is already installed.${reset}"
+else
+	echo -e "${green}    ✔ AmneziaVPN installed.${reset}"
+	AmneziaInstall
+fi
