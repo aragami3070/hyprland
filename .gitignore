@@ -10,7 +10,7 @@ systemd/
 session/
 pulse/
 nwg-look/
-nvim/
+nvim*/
 one-nvim/
 neofetch/
 kitty/
@@ -43,3 +43,5 @@ inkscape/
 nextjs-nodejs/
 obs-studio/
 menus/
+discord/
+screenkey.json
