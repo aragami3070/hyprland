@@ -7,7 +7,8 @@ hyprctl dispatch exec [ workspace 1 silent] firefox
 hyprctl dispatch exec [workspace special:magic silent] kitty
 
 # start on desktop with DP-2 (my desktop)
-if [ $monitor_name == "DP-2" ]; then
+if [ "$monitor_name" == "DP-2" ]; then
 	hyprctl dispatch exec [ workspace 2 silent] chromium
 	hyprctl dispatch exec [ workspace 3 silent] Telegram
+	hyprctl dispatch exec [ workspace 4 silent] AmneziaVPN
 fi
