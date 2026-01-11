@@ -46,3 +46,4 @@ menus/
 discord/
 screenkey.json
 pgcli/history
+pgcli/log
