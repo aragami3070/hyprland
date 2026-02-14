@@ -52,6 +52,7 @@ checkCommand() {
 yayInstall() {
 	echo -e "${blue}    Installing yay...${reset}"
     git clone https://aur.archlinux.org/yay.git "${HOME}/yay"
+    sudo pacman -S base-devel git --needed --noconfirm
 	cd "$HOME/yay"
 	makepkg -si --noconfirm
 	cd - &>/dev/null
