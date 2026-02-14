@@ -76,7 +76,7 @@ packagesInstall() {
 		nwg-look ttf-ubuntu-nerd wofi zoxide zathura metasploit virtualbox typescript \
 		vue-typescript-plugin qt6-svg qt6-declarative qt5-quickcontrols2 man-pages-ru \
 		tldr python-pygments python-pip dotnet-runtime-8.0 aspnet-runtime-8.0 \
-		gtk-engine-murrine meson mpv nmap gnu-netcat ghidra socat birdfont discord
+		meson mpv nmap ghidra socat birdfont discord
 
 	echo -e "${green}    ✔ Pacman packages installed.${reset}"
 	# yay install without confirm and not reinstall installed packages
@@ -104,7 +104,7 @@ packagesInstall() {
 
 # Preparation to installation
 abortIfNotArch
-abortIfRoot
+# abortIfRoot
 printBanner
 
 # Installing packages and tools
