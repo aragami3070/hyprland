@@ -29,7 +29,6 @@ git clone git@github.com:aragami3070/aragami3070.git ~/.projects/git-hub-README
 
 mkdir -p ~/.projects/course-works
 git clone git@github.com:aragami3070HWSSU/Course-Work-Voluntary-Working-Back-End.git ~/.projects/course-works/voluntary-working-back-end-tex
-git clone git@github.com:aragami3070HWSSU/Course-Work-Voluntary-Working-Back-End-Presentation.git ~/.projects/course-works/voluntary-working-back-end-presentation
 
 mkdir -p ~/.projects/hackatons
 mkdir -p ~/.projects/ctf

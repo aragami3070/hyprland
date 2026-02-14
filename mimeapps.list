@@ -13,6 +13,7 @@ application/x-extension-xhtml=firefox.desktop
 application/x-extension-xht=firefox.desktop
 x-scheme-handler/anytype=anytype.desktop
 application/vnd.rar=org.kde.dolphin.desktop
+x-scheme-handler/figma=figma-linux.desktop
 
 [Added Associations]
 application/pdf=org.pwmt.zathura-pdf-mupdf.desktop;
@@ -29,3 +30,4 @@ application/x-extension-xhtml=firefox.desktop;
 application/x-extension-xht=firefox.desktop;
 image/svg+xml=firefox.desktop;
 application/vnd.rar=org.kde.dolphin.desktop;
+application/vnd.anki=anki.desktop;

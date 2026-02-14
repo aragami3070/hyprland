@@ -70,22 +70,28 @@ packagesInstall() {
 	echo -e "${blue}    Installing required packages...${reset}"
 	# pacman install without confirm and not reinstall installed packages
 	sudo pacman -Syu --noconfirm --needed \
-		zsh gcc nvim ripgrep wl-clipboard pipewire pam  brightnessctl thunar zip \
+		zsh gcc nvim ripgrep wl-clipboard pipewire pam brightnessctl thunar zip \
 		unzip python3 firefox chromium telegram-desktop curl rustup npm yarn cmake \
 		eza fastfetch tmux postgresql docker docker-compose hyprlock hyprpaper waybar \
 		nwg-look ttf-ubuntu-nerd wofi zoxide zathura metasploit virtualbox typescript \
 		vue-typescript-plugin qt6-svg qt6-declarative qt5-quickcontrols2 man-pages-ru \
 		tldr python-pygments python-pip dotnet-runtime-8.0 aspnet-runtime-8.0 \
-		gtk-engine-murrine meson mpv nmap gnu-netcat ghidra socat birdfont
+		gtk-engine-murrine meson mpv nmap gnu-netcat ghidra socat birdfont discord
 
 	echo -e "${green}    ✔ Pacman packages installed.${reset}"
 	# yay install without confirm and not reinstall installed packages
 	yay -Syu --noconfirm --needed \
 		texlive texlive-fontsextra texlive-langcyrillic hyprshot burpsuite gobuster zoom \
-		ethersync-bin
+        amneziavpn-bin
 	echo -e "${green}    ✔ Yay packages installed.${reset}"
-	
-	# cargo install
+
+	# rust toolcha install
+	echo -e "${blue}    Installing Rust from rustup...${reset}"
+    rustup toolchain install stable
+    rustup default stable
+	echo -e "${green}    ✔ Rust toolchain installed.${reset}"
+
+	# typst install
 	if checkCommand "typst"; then
 		echo -e "${green}    ✔ Typst is already installed.${reset}"
 	else
