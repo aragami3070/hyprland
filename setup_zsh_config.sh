@@ -3,7 +3,7 @@
 # If get error then exit
 set -euo pipefail
 
-git clone git@github.com:aragami3070/zsh.git ~/.config/
+git clone git@github.com:aragami3070/zsh.git ~/.config/zsh
 
 rm ~/.zshrc
 
