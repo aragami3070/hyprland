@@ -54,5 +54,5 @@ ln -s ~/.config/hyprland/mimeapps.list ~/.config/mimeapps.list
 # ln -s ~/.config/hyprland/applications/* ~/.local/share/applications
 
 # sddm theme symlinks
-sudo ln -s ~/.config/hyprland/LoginTheme/catppuccin-mocha /usr/share/sddm/themes/
+sudo cp -r ~/.config/hyprland/LoginTheme/catppuccin-mocha/* /usr/share/sddm/themes/catppuccin-mocha/
 sudo ln -s ~/.config/hyprland/LoginTheme/sddm.conf /etc/
