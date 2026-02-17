@@ -76,17 +76,19 @@ packagesInstall() {
 		eza fastfetch tmux postgresql docker docker-compose hyprlock hyprpaper waybar \
 		nwg-look ttf-ubuntu-nerd wofi zoxide zathura metasploit virtualbox typescript \
 		vue-typescript-plugin qt6-svg qt6-declarative qt5-quickcontrols2 man-pages-ru \
-		tldr python-pygments python-pip dotnet-runtime-8.0 aspnet-runtime-8.0 \
-		meson mpv nmap ghidra socat birdfont discord
+		tldr python-pygments python-pip dotnet-runtime aspnet-runtime openssl \
+		meson mpv nmap ghidra socat birdfont discord syncthing python-virtualenv \
+        hyprland-qt-support hyprpolkitagent just archlinux-keyring gnome-keyring \
+        qbittorrent fzf ctags
 
 	echo -e "${green}    ✔ Pacman packages installed.${reset}"
 	# yay install without confirm and not reinstall installed packages
 	yay -Syu --noconfirm --needed \
 		texlive texlive-fontsextra texlive-langcyrillic hyprshot burpsuite gobuster zoom \
-        amneziavpn-bin
+        amneziavpn-bin libreoffice-fresh-ru ghcup-hs-bin ttf-all-the-icons
 	echo -e "${green}    ✔ Yay packages installed.${reset}"
 
-	# rust toolcha install
+	# rust toolchain install
 	echo -e "${blue}    Installing Rust from rustup...${reset}"
     rustup toolchain install stable
     rustup default stable
@@ -98,6 +100,20 @@ packagesInstall() {
 	else
 		cargo install typst-cli
 		echo -e "${green}    ✔ Typst installed.${reset}"
+	fi
+
+    # cargo-leptos install
+    cargo install cargo-leptos
+    echo -e "${green}    ✔ cargo-leptos installed.${reset}"
+
+
+    # cargo-leptos install
+	if checkCommand "ghcup"; then
+		echo -e "${green}    ✔ ghcup is already installed.${reset}"
+	else
+        ghcup install ghc
+        ghcup set ghc
+		echo -e "${green}    ✔ ghcup and ghc installed.${reset}"
 	fi
 
 	echo -e "${green}    ✔ Packages installed.${reset}"
