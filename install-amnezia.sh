@@ -11,11 +11,11 @@ reset="\033[0m"
 
 AmneziaInstall() {
 	echo -e "${blue}    Installing Amnezia...${reset}"
-	mkdir "$HOME/Amnezia"
+	mkdir "$HOME/Amnezia" -p
 	cd "$HOME/Amnezia"
 	wget https://github.com/amnezia-vpn/amnezia-client/releases/download/4.8.3.1/AmneziaVPN_4.8.3.1_linux.tar.zip
 	unzip AmneziaVPN_4.8.3.1_linux.tar.zip
-	tar -xvf AmneziaVPN_Linux_Installer.ta
+	tar -xvf AmneziaVPN_Linux_Installer.tar
 	chmod +x AmneziaVPN_Linux_Installer.bin
 	sudo ./AmneziaVPN_Linux_Installer.bin
 	cd - &>/dev/null
