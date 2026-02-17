@@ -10,5 +10,7 @@ hyprctl dispatch exec [workspace special:magic silent] kitty
 if [ "$monitor_name" == "DP-2" ]; then
 	hyprctl dispatch exec [ workspace 2 silent] chromium
 	hyprctl dispatch exec [ workspace 3 silent] Telegram
-	hyprctl dispatch exec [ workspace 4 silent] AmneziaVPN
+    hyprctl dispatch exec [ workspace 4 silent] AmneziaVPN
+else
+    hyprctl dispatch exec [ workspace 4 silent] env QT_QPA_PLATFORM=xcb QT_QUICK_BACKEND=software AmneziaVPN
 fi
