@@ -1,5 +1,4 @@
 all:
-	install-amnezia
 	install-packages
 	setup-repos
 	setup-dirs
@@ -10,12 +9,12 @@ create-ssh-key:
 	@sh create-ssh-key.sh
 
 install-amnezia:
-	@echo "Installing Amnezia"
+	@echo "Installing Amnezia (ONLY IF NOT INSTALLED FROM YAY)"
 	@sh install-amnezia.sh
 
 install-packages:
 	@echo "Installing packages"
-	@sudo sh install.sh
+	@sh install.sh
 
 setup-repos:
 	@echo "Setting up repos"
