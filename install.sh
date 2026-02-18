@@ -27,7 +27,7 @@ printBanner() {
     echo -e "${green}   ╰────────────────────────────────────────────────────────────────────────────────────────────────╯${reset}"
 }
 
-abortIfNotArch() {
+abort_if_not_arch() {
     if ! grep -q "arch" /etc/os-release; then
         echo -e "${red}    This script is designed to run on Arch Linux. Exiting.${reset}"
         exit 1
@@ -36,7 +36,7 @@ abortIfNotArch() {
     fi
 }
 
-abortIfRoot() {
+abort_if_root() {
     if [ "$(id -u)" -eq 0 ]; then
         echo -e "${red}    Please do not run this script as root. Exiting.${reset}"
         exit 1
@@ -45,11 +45,11 @@ abortIfRoot() {
     fi
 }
 
-checkCommand() {
+check_command() {
 	command -v "$1" &>/dev/null
 }
 
-yayInstall() {
+yay_install() {
 	echo -e "${blue}    Installing yay...${reset}"
     git clone https://aur.archlinux.org/yay.git "${HOME}/yay"
     sudo pacman -S base-devel git --needed --noconfirm
@@ -60,16 +60,16 @@ yayInstall() {
 }
 
 # NOTE: Work in progress
-packagesInstall() {
-	# Install yay
-	if checkCommand "yay"; then
+packages_install() {
+	# NOTE: Install yay
+	if check_command "yay"; then
 		echo -e "${green}    ✔ Yay is already installed.${reset}"
 	else
-		yayInstall
+		yay_install
 	fi
 
+	# NOTE: pacman install without confirm and not reinstall installed packages
 	echo -e "${blue}    Installing required packages...${reset}"
-	# pacman install without confirm and not reinstall installed packages
 	sudo pacman -Syu --noconfirm --needed \
 		zsh gcc nvim ripgrep wl-clipboard pipewire pam brightnessctl thunar zip \
 		unzip python3 firefox chromium telegram-desktop curl rustup npm yarn cmake \
@@ -79,52 +79,63 @@ packagesInstall() {
 		tldr python-pygments python-pip dotnet-runtime aspnet-runtime openssl \
 		meson mpv nmap ghidra socat birdfont discord syncthing python-virtualenv \
         hyprland-qt-support hyprpolkitagent just archlinux-keyring gnome-keyring \
-        qbittorrent fzf ctags
-
+        qbittorrent fzf ctags wine
 	echo -e "${green}    ✔ Pacman packages installed.${reset}"
-	# yay install without confirm and not reinstall installed packages
+
+	# NOTE: yay install without confirm and not reinstall installed packages
 	yay -Syu --noconfirm --needed \
 		texlive texlive-fontsextra texlive-langcyrillic hyprshot burpsuite gobuster zoom \
         amneziavpn-bin libreoffice-fresh-ru ghcup-hs-bin ttf-all-the-icons
 	echo -e "${green}    ✔ Yay packages installed.${reset}"
 
-	# rust toolchain install
-	echo -e "${blue}    Installing Rust from rustup...${reset}"
-    rustup toolchain install stable
-    rustup default stable
-	echo -e "${green}    ✔ Rust toolchain installed.${reset}"
+	# NOTE: rust toolchain install
+	if check_command "cargo" && check_command "rustc"; then
+		echo -e "${green}    ✔ Rust toolchain is already installed.${reset}"
+	else
+        echo -e "${blue}    Installing Rust from rustup...${reset}"
+        rustup toolchain install stable
+        rustup default stable
+        echo -e "${green}    ✔ Rust toolchain installed.${reset}"
+	fi
 
-	# typst install
-	if checkCommand "typst"; then
+	# NOTE: typst install
+	if check_command "typst"; then
 		echo -e "${green}    ✔ Typst is already installed.${reset}"
 	else
+        echo -e "${blue}    Installing typst-cli from cargo...${reset}"
 		cargo install typst-cli
 		echo -e "${green}    ✔ Typst installed.${reset}"
 	fi
 
-    # cargo-leptos install
-    cargo install cargo-leptos
-    echo -e "${green}    ✔ cargo-leptos installed.${reset}"
-
-
-    # cargo-leptos install
-	if checkCommand "ghcup"; then
-		echo -e "${green}    ✔ ghcup is already installed.${reset}"
+    # NOTE: cargo-leptos install
+	if check_command "cargo-leptos"; then
+		echo -e "${green}    ✔ cargo-leptos is already installed.${reset}"
 	else
+        echo -e "${blue}    Installing cargo-leptos from cargo...${reset}"
+        cargo install cargo-leptos
+        echo -e "${green}    ✔ cargo-leptos installed.${reset}"
+	fi
+
+
+    # NOTE: ghc install
+	if check_command "ghc"; then
+		echo -e "${green}    ✔ ghc is already installed.${reset}"
+	else
+        echo -e "${blue}    Installing ghc from ghcup...${reset}"
         ghcup install ghc
         ghcup set ghc
-		echo -e "${green}    ✔ ghcup and ghc installed.${reset}"
+		echo -e "${green}    ✔ ghc installed.${reset}"
 	fi
 
 	echo -e "${green}    ✔ Packages installed.${reset}"
 }
 
 # Preparation to installation
-abortIfNotArch
-# abortIfRoot
+abort_if_not_arch
+abort_if_root
 printBanner
 
 # Installing packages and tools
 echo -e "${blue}    Installing packages and tools...${reset}"
-packagesInstall
+packages_install
 echo -e "${green}    ✔ All packages installed.${reset}"
