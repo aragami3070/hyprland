@@ -5,6 +5,7 @@ set -euo pipefail
 
 git clone git@github.com:aragami3070/zsh.git ~/.config/zsh
 
+touch ~/.zshrc
 rm ~/.zshrc
 
 ln -s ~/.config/zsh/.editorconfig ~/.editorconfig

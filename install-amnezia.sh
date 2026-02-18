@@ -9,6 +9,11 @@ blue="\033[1;34m"
 red="\033[1;31m"
 reset="\033[0m"
 
+check_command() {
+	command -v "$1" &>/dev/null
+}
+
+# FIX: (ONLY IF NOT INSTALLED FROM YAY)
 AmneziaInstall() {
 	echo -e "${blue}    Installing Amnezia...${reset}"
 	mkdir "$HOME/Amnezia" -p
@@ -23,7 +28,7 @@ AmneziaInstall() {
 }
 
 # Install Amnezia
-if checkCommand "AmneziaVPN"; then
+if check_command "AmneziaVPN"; then
 	echo -e "${green}    ✔ AmneziaVPN is already installed.${reset}"
 else
 	echo -e "${green}    ✔ AmneziaVPN installed.${reset}"
