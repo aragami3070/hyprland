@@ -59,35 +59,32 @@ yay_install() {
 	echo -e "${green}    ✔ Yay installed successfully.${reset}"
 }
 
-# NOTE: Work in progress
-packages_install() {
-	# NOTE: Install yay
-	if check_command "yay"; then
-		echo -e "${green}    ✔ Yay is already installed.${reset}"
-	else
-		yay_install
-	fi
-
+install_from_pacman(){
 	# NOTE: pacman install without confirm and not reinstall installed packages
 	echo -e "${blue}    Installing required packages...${reset}"
 	sudo pacman -Syu --noconfirm --needed \
 		zsh gcc nvim ripgrep wl-clipboard pipewire pam brightnessctl thunar zip \
 		unzip python3 firefox chromium telegram-desktop curl rustup npm yarn cmake \
 		eza fastfetch tmux postgresql docker docker-compose hyprlock hyprpaper waybar \
-		nwg-look ttf-ubuntu-nerd wofi zoxide zathura metasploit virtualbox typescript \
-		vue-typescript-plugin qt6-svg qt6-declarative qt5-quickcontrols2 man-pages-ru \
-		tldr python-pygments python-pip dotnet-runtime aspnet-runtime openssl \
-		meson mpv nmap ghidra socat birdfont discord syncthing python-virtualenv \
-        hyprland-qt-support hyprpolkitagent just archlinux-keyring gnome-keyring \
-        qbittorrent fzf ctags wine
+		nwg-look ttf-ubuntu-nerd ttf-ubuntu-mono-nerd wofi zoxide zathura metasploit \
+        virtualbox typescript vue-typescript-plugin qt6-svg qt6-declarative \
+        qt5-quickcontrols2 man-pages-ru tldr python-pygments python-pip dotnet-runtime \
+        aspnet-runtime openssl meson mpv nmap ghidra socat birdfont discord syncthing  \
+        python-virtualenv hyprland-qt-support hyprpolkitagent just archlinux-keyring \
+        gnome-keyring qbittorrent fzf ctags wine
 	echo -e "${green}    ✔ Pacman packages installed.${reset}"
 
+}
+
+install_from_yay() {
 	# NOTE: yay install without confirm and not reinstall installed packages
 	yay -Syu --noconfirm --needed \
 		texlive texlive-fontsextra texlive-langcyrillic hyprshot burpsuite gobuster zoom \
         amneziavpn-bin libreoffice-fresh-ru ghcup-hs-bin ttf-all-the-icons
 	echo -e "${green}    ✔ Yay packages installed.${reset}"
+}
 
+install_from_rustup() {
 	# NOTE: rust toolchain install
 	if check_command "cargo" && check_command "rustc"; then
 		echo -e "${green}    ✔ Rust toolchain is already installed.${reset}"
@@ -98,7 +95,9 @@ packages_install() {
         echo -e "${green}    ✔ Rust toolchain installed.${reset}"
 	fi
 
-	# NOTE: typst install
+}
+
+install_typst() {
 	if check_command "typst"; then
 		echo -e "${green}    ✔ Typst is already installed.${reset}"
 	else
@@ -107,7 +106,9 @@ packages_install() {
 		echo -e "${green}    ✔ Typst installed.${reset}"
 	fi
 
-    # NOTE: cargo-leptos install
+}
+
+install_leptos() {
 	if check_command "cargo-leptos"; then
 		echo -e "${green}    ✔ cargo-leptos is already installed.${reset}"
 	else
@@ -115,8 +116,9 @@ packages_install() {
         cargo install cargo-leptos
         echo -e "${green}    ✔ cargo-leptos installed.${reset}"
 	fi
+}
 
-
+install_from_ghcup() {
     # NOTE: ghc install
 	if check_command "ghc"; then
 		echo -e "${green}    ✔ ghc is already installed.${reset}"
@@ -126,6 +128,22 @@ packages_install() {
         ghcup set ghc
 		echo -e "${green}    ✔ ghc installed.${reset}"
 	fi
+
+}
+
+packages_install() {
+	if check_command "yay"; then
+		echo -e "${green}    ✔ Yay is already installed.${reset}"
+	else
+		yay_install
+	fi
+
+    install_from_pacman()
+    install_from_yay()
+    install_from_rustup()
+    install_typst()
+    install_leptos()
+    install_from_ghcup()
 
 	echo -e "${green}    ✔ Packages installed.${reset}"
 }
