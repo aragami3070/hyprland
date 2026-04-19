@@ -135,15 +135,15 @@ packages_install() {
 	if check_command "yay"; then
 		echo -e "${green}    ✔ Yay is already installed.${reset}"
 	else
-		yay_install
+        yay_install
 	fi
 
-    install_from_pacman()
-    install_from_yay()
-    install_from_rustup()
-    install_typst()
-    install_leptos()
-    install_from_ghcup()
+    install_from_pacman
+    install_from_yay
+    install_from_rustup
+    install_typst
+    install_leptos
+    install_from_ghcup
 
 	echo -e "${green}    ✔ Packages installed.${reset}"
 }
