@@ -5,21 +5,20 @@
     "margin-right": 10,
     "height" : 28,
     "modules-left": [
+      "custom/arch",
       "hyprland/workspaces",
-      "hyprland/window",
     ],
     "modules-center": [
-        "clock",
+      "clock",
     ],
     "modules-right": [
-    "hyprland/language",
-    "pulseaudio",
-    "cpu",
-    "battery",
-    "memory",
-    "network",
-    "temperature",
-    "custom/powermenu",
+      "hyprland/language",
+      "pulseaudio",
+      "cpu",
+      "battery",
+      "memory",
+      "network",
+      "temperature",
     ],
     "hyprland/window": {
       "format": "{}",
@@ -45,17 +44,10 @@
       "tooltip-format": "<big>{:%Y %B}</big>\n<tt><big>{calendar}</big></tt>",
       "format": "{:%d %h - %H:%M}",
     },
-    "cpu": {
-      "format": " {usage}%",
-      "tooltip": false
-    },
-    "memory": {
-      "format": "{}% "
-    },
     "temperature": {
       "critical-threshold": 80,
       "format": "{icon} {temperatureC}°C",
-      "format-icons": ["", "", ""]
+      "format-icons": [ "", "", "" ]
     },
     "battery": {
       "states": {
@@ -64,7 +56,7 @@
       },
       "format": "{icon}  {capacity}%",
       "format-full": "{icon}  {capacity}%",
-      "format-charging": "  {capacity}%",
+      "format-charging": "  {capacity}%",
       "format-plugged": "  {capacity}%",
       "format-alt": "{time} {icon}",
       "format-icons": ["", "", "", "", ""]
@@ -75,7 +67,8 @@
       "tooltip-format": "{ifname} via {gwaddr} ",
       "format-linked": "{ifname} (No IP) ",
       "format-disconnected": " ⚠ ",
-      "format-alt": "{ifname}: {ipaddr}/{cidr}"
+      "format-alt": "{ifname}: {ipaddr}/{cidr}",
+      "on-click-right": "networkmanager_dmenu"
     },
     "pulseaudio": {
       "format": "{icon}  {volume}%",
@@ -93,9 +86,4 @@
       },
       "on-click": "pavucontrol"
     },
-    "custom/powermenu": {
-      "format": "  ",
-      "tooltip": false,
-      "on-click": "exec wlogout -p layer-shell"
-  },
 }
