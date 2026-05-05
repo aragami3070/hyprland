@@ -71,7 +71,7 @@ install_from_pacman(){
         qt5-quickcontrols2 man-pages-ru tldr python-pygments python-pip dotnet-runtime \
         aspnet-runtime openssl meson mpv nmap ghidra socat birdfont discord syncthing  \
         python-virtualenv hyprland-qt-support hyprpolkitagent just archlinux-keyring \
-        gnome-keyring qbittorrent fzf ctags wine
+        gnome-keyring qbittorrent fzf ctags wine pavucontrol
 	echo -e "${green}    ✔ Pacman packages installed.${reset}"
 
 }
@@ -79,8 +79,9 @@ install_from_pacman(){
 install_from_yay() {
 	# NOTE: yay install without confirm and not reinstall installed packages
 	yay -Syu --noconfirm --needed \
-		texlive texlive-fontsextra texlive-langcyrillic hyprshot burpsuite gobuster zoom \
-        amneziavpn-bin libreoffice-fresh-ru ghcup-hs-bin ttf-all-the-icons
+		texlive texlive-fontsextra texlive-langcyrillic hyprshot burpsuite \
+        gobuster zoom amneziavpn-bin libreoffice-fresh-ru ghcup-hs-bin \
+        ttf-all-the-icons  networkmanager-dmenu
 	echo -e "${green}    ✔ Yay packages installed.${reset}"
 }
 
