@@ -65,7 +65,7 @@ install_from_pacman(){
 	sudo pacman -Syu --noconfirm --needed \
 		zsh gcc nvim ripgrep wl-clipboard pipewire pam brightnessctl thunar zip \
 		unzip python3 firefox chromium telegram-desktop curl rustup npm yarn cmake \
-		eza fastfetch tmux postgresql docker docker-compose hyprlock hyprpaper waybar \
+		eza tmux postgresql docker docker-compose hyprlock hyprpaper waybar \
 		nwg-look ttf-ubuntu-nerd ttf-ubuntu-mono-nerd wofi zoxide zathura metasploit \
         virtualbox typescript vue-typescript-plugin qt6-svg qt6-declarative \
         qt5-quickcontrols2 man-pages-ru tldr python-pygments python-pip dotnet-runtime \
@@ -81,7 +81,7 @@ install_from_yay() {
 	yay -Syu --noconfirm --needed \
 		texlive texlive-fontsextra texlive-langcyrillic hyprshot burpsuite \
         gobuster zoom amneziavpn-bin libreoffice-fresh-ru ghcup-hs-bin \
-        ttf-all-the-icons  networkmanager-dmenu
+        ttf-all-the-icons  networkmanager-dmenu fastfetch-gif-git
 	echo -e "${green}    ✔ Yay packages installed.${reset}"
 }
 
