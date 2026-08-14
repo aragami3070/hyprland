@@ -36,14 +36,41 @@ local editor = "nvim"
 -- #################
 -- ### AUTOSTART ###
 -- #################
-
--- Autostart necessary processes (like notification daemons, status bars, etc.)
--- Or execute your favorite apps at launch like this:
 hl.on("hyprland.start", function()
+    local amnezia_listener
+    amnezia_listener = hl.on("window.open", function(window)
+        if window.class == "AmneziaVPN" or window.initial_class == "AmneziaVPN" then
+            hl.dispatch(hl.dsp.window.move({
+                window = window,
+                workspace = "4",
+                follow = false,
+            }))
+
+            hl.timer(function()
+                hl.dispatch(hl.dsp.focus({
+                    workspace = "1",
+                    on_current_monitor = true,
+                }))
+            end, { timeout = 1, type = "oneshot" })
+
+            -- Обрабатываем только стартовое окно Amnezia
+            amnezia_listener:remove()
+        end
+    end)
+
     hl.exec_cmd("hypridle & hyprsunset & syncthing")
     hl.exec_cmd("hyprpaper & sleep 1 && ~/.bin/hyprpaper-picker display-last")
-    hl.exec_cmd("sh ~/.config/hypr/autostart_apps.sh")
     hl.exec_cmd("dunst --config ~/.config/dunst/dunstrc")
+    hl.exec_cmd(browser, { workspace = "1 silent" })
+    hl.exec_cmd(terminal, { workspace = "special:magic silent" })
+
+    if hl.get_monitor("DP-2") ~= nil then
+        hl.exec_cmd("chromium", { workspace = "2 silent" })
+        hl.exec_cmd("Telegram", { workspace = "3 silent" })
+        hl.exec_cmd("AmneziaVPN", { workspace = "4 silent" })
+    else
+        hl.exec_cmd("env QT_QPA_PLATFORM=xcb QT_QUICK_BACKEND=software AmneziaVPN", { workspace = "4 silent" })
+    end
 end)
 
 -- #############################
@@ -376,6 +403,7 @@ hl.window_rule({
 
 hl.window_rule({
     name = "AmneziaVPN",
+    workspace = "unset",
     match = {
         class = "^(AmneziaVPN)$",
         float = true,
