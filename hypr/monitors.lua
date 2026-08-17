@@ -5,7 +5,7 @@
 -- See https://wiki.hypr.land/Configuring/Basics/Monitors/
 hl.monitor({
     output = "",
-    mode = "highres highrr",
+    mode = "highres@highrr",
     position = "0x0",
     scale = 1,
 })
@@ -196,7 +196,7 @@ local function apply_monitor_mode(force)
     for _, monitor in ipairs(external_monitors) do
         hl.monitor({
             output = monitor.name,
-            mode = "preferred",
+            mode = "highres@highrr",
             position = "2560x0",
             scale = 1,
             mirror = monitor_mode == "mirror" and primary.name or "",
