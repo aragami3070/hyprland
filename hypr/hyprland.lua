@@ -12,13 +12,7 @@
 -- ### MONITORS ###
 -- ################
 
--- See https://wiki.hypr.land/Configuring/Basics/Monitors/
-hl.monitor({
-    output = "",
-    mode = "highres highrr",
-    position = "0x0",
-    scale = 1,
-})
+local monitors = require("monitors")
 
 -- ###################
 -- ### MY PROGRAMS ###
@@ -305,6 +299,9 @@ hl.bind(mainMod .. " + SHIFT + V", hl.dsp.window.fullscreen())
 hl.bind(mainMod .. " + SHIFT + O", hl.dsp.exec_cmd("if pgrep waybar; then pkill waybar; fi"))
 hl.bind(mainMod .. " + SHIFT + P", hl.dsp.exec_cmd("if pgrep waybar; then pkill waybar; fi && waybar"))
 hl.bind(mainMod .. " + F", hl.dsp.exec_cmd(menu))
+hl.bind(mainMod .. " + SHIFT + D", function()
+    monitors.toggle_mode()
+end)
 hl.bind(mainMod .. " + SHIFT + L", hl.dsp.exec_cmd("hyprlock"))
 hl.bind(mainMod .. " + SHIFT + H", hl.dsp.exec_cmd("hyprpicker --autocopy --quiet"))
 hl.bind(mainMod .. " + SHIFT + W", hl.dsp.exec_cmd("~/.bin/hyprpaper-picker next"))
