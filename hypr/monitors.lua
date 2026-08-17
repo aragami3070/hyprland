@@ -239,6 +239,44 @@ function M.toggle_mode()
     apply_monitor_mode(true)
 end
 
+local function shell_quote(value)
+    return "'" .. value:gsub("'", "'\\''") .. "'"
+end
+
+function M.change_wallpaper(action)
+    local actions = {
+        next = true,
+        prev = true,
+        rand = true,
+    }
+
+    if not actions[action] then
+        return
+    end
+
+    local monitors = get_known_monitors()
+    local primary = get_primary_monitor(monitors)
+    if primary == nil then
+        return
+    end
+
+    local commands = {
+        "~/.bin/hyprpaper-picker " .. action .. " -m " .. shell_quote(primary.name),
+    }
+
+    -- In split mode each output has its own hyprpaper wallpaper. The picker
+    -- stores one selected path globally, so display-last applies exactly the
+    -- path selected for the primary monitor to every external monitor.
+    if monitor_mode == "split" then
+        for _, monitor in ipairs(get_external_monitors(monitors, primary)) do
+            table.insert(commands,
+                "~/.bin/hyprpaper-picker display-last -m " .. shell_quote(monitor.name))
+        end
+    end
+
+    hl.exec_cmd(table.concat(commands, " && "))
+end
+
 hl.on("hyprland.start", function()
     apply_monitor_mode(true)
 end)
