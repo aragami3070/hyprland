@@ -86,6 +86,24 @@ local function get_external_monitors(monitors, primary)
     return result
 end
 
+local function round_layout_coordinate(value)
+    return math.floor(value + 0.5)
+end
+
+local function get_external_position(primary)
+    -- Monitor.width is the physical pixel width. Monitor positions use the
+    -- logical layout size, so account for the primary monitor's scale.
+    local scale = primary.scale or 1
+    local x = (primary.x or 0) + primary.width / scale
+    local y = primary.y or 0
+
+    return string.format(
+        "%dx%d",
+        round_layout_coordinate(x),
+        round_layout_coordinate(y)
+    )
+end
+
 local function disable_split_workspace_rules()
     for _, rule in ipairs(split_workspace_rules) do
         rule:set_enabled(false)
@@ -187,17 +205,27 @@ local function apply_monitor_mode(force)
     end
     table.sort(names)
 
-    local signature = monitor_mode .. "|" .. primary.name .. "|" .. table.concat(names, ",")
+    local primary_geometry = table.concat({
+        primary.x or 0,
+        primary.y or 0,
+        primary.width or 0,
+        primary.height or 0,
+        primary.scale or 1,
+    }, ":")
+    local signature = monitor_mode .. "|" .. primary.name .. "|"
+        .. primary_geometry .. "|" .. table.concat(names, ",")
     if not force and signature == monitor_layout_signature then
         return
     end
     monitor_layout_signature = signature
 
+    local external_position = get_external_position(primary)
+
     for _, monitor in ipairs(external_monitors) do
         hl.monitor({
             output = monitor.name,
             mode = "highres@highrr",
-            position = "2560x0",
+            position = external_position,
             scale = 1,
             mirror = monitor_mode == "mirror" and primary.name or "",
         })
