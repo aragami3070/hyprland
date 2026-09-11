@@ -41,10 +41,10 @@ mkdir ~/.config/tmux
 rm ~/.config/tmux -r
 ln -s ~/.config/hyprland/tmux ~/.config/tmux
 
-# waybar
-mkdir ~/.config/waybar
-rm ~/.config/waybar -r
-ln -s ~/.config/hyprland/waybar ~/.config/waybar
+# quickshell
+mkdir ~/.config/quickshell
+rm ~/.config/quickshell -r
+ln -s ~/.config/hyprland/quickshell ~/.config/quickshell
 
 # wireplumber
 mkdir -p ~/.config/wireplumber/wireplumber.conf.d

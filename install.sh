@@ -65,7 +65,7 @@ install_from_pacman(){
 	sudo pacman -Syu --noconfirm --needed \
 		zsh gcc nvim ripgrep wl-clipboard pipewire pam brightnessctl thunar zip \
 		unzip python3 firefox chromium telegram-desktop curl rustup npm yarn cmake \
-		eza tmux postgresql docker docker-compose hyprlock hyprpaper waybar \
+        eza tmux postgresql docker docker-compose hyprlock hyprpaper quickshell \
 		nwg-look ttf-ubuntu-nerd ttf-ubuntu-mono-nerd wofi zoxide zathura metasploit \
         virtualbox typescript vue-typescript-plugin qt6-svg qt6-declarative \
         qt5-quickcontrols2 man-pages-ru tldr python-pygments python-pip dotnet-runtime \
