@@ -18,11 +18,156 @@ Scope {
     property string batteryText: "  --%"
     property string temperatureText: "  --°C"
     property string networkText: "⚠"
-    property string calendarText: ""
+    property string tasksDirectory: Quickshell.env("QS_DAILIES_DIR") || "/home/aragami3070/ObsidianWorkSpace/Obsidian/dailies"
+    property var calendarTasks: []
+    property var dailyFiles: ({})
 
     function update(process) {
         process.running = false
         process.running = true
+    }
+
+    function dateKey(day) {
+        var month = String(day.getMonth() + 1).padStart(2, "0")
+        var date = String(day.getDate()).padStart(2, "0")
+        return day.getFullYear() + "-" + month + "-" + date
+    }
+
+    function tasksForDate(day) {
+        var key = dateKey(day)
+        return calendarTasks.filter(function(task) { return task.date === key })
+    }
+
+    function taskCount(day) {
+        return tasksForDate(day).length
+    }
+
+    function groupLabel(group) {
+        var labels = {
+            "Main tasks": "Главные задачи",
+            "Quick tasks": "Быстрые задачи",
+            "Others tasks": "Другие задачи",
+            "Unforeseen": "Непредвиденные",
+            "Thoughts|Ideas": "Мысли и идеи"
+        }
+        return labels[group] || group
+    }
+
+    function groupColor(group) {
+        var colors = {
+            "Main tasks": "#7aa2f7",
+            "Quick tasks": "#9ece6a",
+            "Others tasks": "#e0af68",
+            "Unforeseen": "#f7768e",
+            "Thoughts|Ideas": "#bb9af7"
+        }
+        return colors[group] || "#565f89"
+    }
+
+    function taskGroupsForDate(day) {
+        var groups = []
+        var positions = {}
+        var tasks = tasksForDate(day)
+
+        for (var i = 0; i < tasks.length; ++i) {
+            var name = tasks[i].group || "Other"
+            if (positions[name] === undefined) {
+                positions[name] = groups.length
+                groups.push({ name: name, label: groupLabel(name), tasks: [] })
+            }
+            groups[positions[name]].tasks.push(tasks[i])
+        }
+
+        return groups
+    }
+
+    function statusGlyph(status) {
+        var glyphs = {
+            " ": "󰄱",
+            "x": "✔",
+            ">": "➣",
+            "-": "✗",
+            "!": "⚠︎",
+            "i": "𝐢"
+        }
+        return glyphs[status] || "󰄱"
+    }
+
+    function statusColor(status) {
+        var colors = {
+            " ": "#f78c6c",
+            "x": "#89ddff",
+            ">": "#f78c6c",
+            "-": "#ff5370",
+            "!": "#d73128",
+            "i": "#80ff80"
+        }
+        return colors[status] || "#f78c6c"
+    }
+
+    function dailyFile(day) {
+        return dailyFiles[dateKey(day)] || tasksDirectory
+    }
+
+    function parseTasks(markdown) {
+        var parsed = []
+        var sectionDate = ""
+        var fileDate = ""
+        var currentFile = ""
+        var taskGroup = "Other"
+        var files = {}
+        var lines = markdown.split("\n")
+
+        for (var i = 0; i < lines.length; ++i) {
+            var fileMarker = lines[i].match(/^@@QS_FILE@@(.+)$/)
+            if (fileMarker) {
+                currentFile = fileMarker[1]
+                var fileMatch = currentFile.match(/(?:^|\/)(\d{4}-\d{2}-\d{2})\.md$/)
+                fileDate = fileMatch ? fileMatch[1] : ""
+                sectionDate = ""
+                taskGroup = "Other"
+                if (fileDate)
+                    files[fileDate] = currentFile
+                continue
+            }
+
+            var heading = lines[i].match(/^#{1,6}\s+(\d{4}-\d{2}-\d{2})(?:\s|$)/)
+            if (heading)
+                sectionDate = heading[1]
+
+            var groupHeading = lines[i].match(/^\s*📝\s*(.+?):\s*$/)
+            if (groupHeading)
+                taskGroup = groupHeading[1].trim()
+
+            var match = lines[i].match(/^\s*[-*+]\s+\[([^\]])\](?:\s+(.*))?$/)
+            if (!match)
+                continue
+
+            var body = match[2] || ""
+            var dateMatch = body.match(/📅\s*(\d{4}-\d{2}-\d{2})/)
+                || body.match(/⏳\s*(\d{4}-\d{2}-\d{2})/)
+                || body.match(/(?:^|\s)(\d{4}-\d{2}-\d{2})(?:\s|$)/)
+            var taskDate = dateMatch ? dateMatch[1] : (sectionDate || fileDate)
+            if (!taskDate)
+                continue
+
+            var title = body
+                .replace(/[📅⏳🛫]\s*\d{4}-\d{2}-\d{2}/g, "")
+                .replace(/^\d{4}-\d{2}-\d{2}\s*/, "")
+                .trim()
+
+            parsed.push({
+                date: taskDate,
+                title: title,
+                group: taskGroup,
+                status: match[1],
+                done: match[1].toLowerCase() === "x",
+                file: currentFile
+            })
+        }
+
+        dailyFiles = files
+        calendarTasks = parsed
     }
 
     // One-shot shell commands keep the dependencies identical to the old Waybar modules.
@@ -91,10 +236,12 @@ Scope {
     Timer { interval: 5000; running: true; repeat: true; onTriggered: root.update(networkProcess) }
 
     Process {
-        id: calendarProcess
-        command: ["sh", "-c", "cal -m"]
-        stdout: StdioCollector { onStreamFinished: root.calendarText = text }
+        id: tasksProcess
+        command: ["bash", Quickshell.shellPath("read-dailies.sh"), root.tasksDirectory]
+        running: true
+        stdout: StdioCollector { onStreamFinished: root.parseTasks(text) }
     }
+    Timer { interval: 30000; running: true; repeat: true; onTriggered: root.update(tasksProcess) }
 
     Connections {
         target: Hyprland
@@ -192,7 +339,7 @@ Scope {
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
-                            root.update(calendarProcess)
+                            root.update(tasksProcess)
                             bar.calendarVisible = !bar.calendarVisible
                         }
                     }
@@ -234,11 +381,12 @@ Scope {
                     anchor.window: bar
                     anchor.rect.x: bar.width / 2 - width / 2
                     anchor.rect.y: bar.height
-                    implicitWidth: 340
-                    implicitHeight: 365
+                    implicitWidth: 410
+                    implicitHeight: 570
                     visible: bar.calendarVisible
                     grabFocus: true
                     property date shownDate: new Date()
+                    property date selectedDate: new Date()
                     property var weekdays: ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
 
                     function changeMonth(offset) {
@@ -262,7 +410,7 @@ Scope {
                         Column {
                             anchors.fill: parent
                             anchors.margins: 18
-                            spacing: 14
+                            spacing: 10
 
                             Row {
                                 width: parent.width
@@ -318,45 +466,222 @@ Scope {
 
                             Grid {
                                 width: parent.width
-                                height: 252
+                                height: 210
                                 columns: 7
                                 rows: 6
                                 columnSpacing: 4
-                                rowSpacing: 4
+                                rowSpacing: 3
 
                                 Repeater {
                                     model: 42
                                     delegate: Rectangle {
                                         required property int index
                                         width: (parent.width - 24) / 7
-                                        height: 36
+                                        height: 32
                                         radius: 8
                                         property date day: {
                                             var first = new Date(calendarPopup.shownDate.getFullYear(), calendarPopup.shownDate.getMonth(), 1)
                                             var mondayOffset = (first.getDay() + 6) % 7
                                             return new Date(calendarPopup.shownDate.getFullYear(), calendarPopup.shownDate.getMonth(), index + 1 - mondayOffset)
                                         }
-                                        color: calendarPopup.isToday(day) ? "#bb9af7" : (day.getMonth() === calendarPopup.shownDate.getMonth() ? "#292e42" : "transparent")
+                                        property bool selected: root.dateKey(day) === root.dateKey(calendarPopup.selectedDate)
+                                        property int tasksCount: root.taskCount(day)
+                                        color: selected ? "#7aa2f7" : (calendarPopup.isToday(day) ? "#bb9af7" : (day.getMonth() === calendarPopup.shownDate.getMonth() ? "#292e42" : "transparent"))
 
                                         Text {
                                             anchors.centerIn: parent
                                             text: day.getDate()
-                                            color: calendarPopup.isToday(day) ? "#16161e" : (day.getMonth() === calendarPopup.shownDate.getMonth() ? "#c0caf5" : "#3b4261")
+                                            color: parent.selected || calendarPopup.isToday(parent.day) ? "#16161e" : (parent.day.getMonth() === calendarPopup.shownDate.getMonth() ? "#c0caf5" : "#3b4261")
                                             font.family: "JetBrains Mono"
                                             font.pixelSize: 14
-                                            font.bold: calendarPopup.isToday(day)
+                                            font.bold: parent.selected || calendarPopup.isToday(parent.day)
+                                        }
+
+                                        Rectangle {
+                                            visible: parent.tasksCount > 0
+                                            anchors.right: parent.right
+                                            anchors.bottom: parent.bottom
+                                            anchors.margins: 3
+                                            width: 13
+                                            height: 13
+                                            radius: 7
+                                            color: parent.selected ? "#16161e" : "#9ece6a"
+                                            Text {
+                                                anchors.centerIn: parent
+                                                text: parent.parent.tasksCount > 9 ? "9+" : parent.parent.tasksCount
+                                                color: parent.parent.selected ? "#7aa2f7" : "#16161e"
+                                                font.pixelSize: 8
+                                                font.bold: true
+                                            }
+                                        }
+
+                                        MouseArea {
+                                            anchors.fill: parent
+                                            onClicked: calendarPopup.selectedDate = parent.day
                                         }
                                     }
                                 }
                             }
 
-                            Text {
+                            Rectangle {
                                 width: parent.width
-                                text: "Сегодня: " + Qt.formatDate(new Date(), "dd.MM.yyyy")
-                                color: "#565f89"
-                                font.family: "JetBrains Mono"
-                                font.pixelSize: 12
-                                horizontalAlignment: Text.AlignRight
+                                height: 1
+                                color: "#292e42"
+                            }
+
+                            Row {
+                                width: parent.width
+                                height: 25
+                                Text {
+                                    width: parent.width - 94
+                                    text: Qt.formatDate(calendarPopup.selectedDate, "dddd, d MMMM")
+                                    color: "#c0caf5"
+                                    font.family: "JetBrains Mono"
+                                    font.pixelSize: 14
+                                    font.bold: true
+                                }
+                                Rectangle {
+                                    width: 94
+                                    height: 24
+                                    radius: 7
+                                    color: todayMouse.containsMouse ? "#292e42" : "transparent"
+                                    Text { anchors.centerIn: parent; text: "Сегодня"; color: "#7aa2f7"; font.family: "JetBrains Mono"; font.pixelSize: 12 }
+                                    MouseArea {
+                                        id: todayMouse
+                                        anchors.fill: parent
+                                        hoverEnabled: true
+                                        onClicked: {
+                                            calendarPopup.shownDate = new Date()
+                                            calendarPopup.selectedDate = new Date()
+                                        }
+                                    }
+                                }
+                            }
+
+                            Flickable {
+                                id: taskScroller
+                                width: parent.width
+                                height: 150
+                                clip: true
+                                contentWidth: width
+                                contentHeight: taskList.height
+                                interactive: true
+                                flickableDirection: Flickable.VerticalFlick
+                                boundsBehavior: Flickable.StopAtBounds
+
+                                Column {
+                                    id: taskList
+                                    width: taskScroller.width
+                                    spacing: 5
+
+                                    Text {
+                                        visible: root.tasksForDate(calendarPopup.selectedDate).length === 0
+                                        width: parent.width
+                                        height: 28
+                                        text: "На этот день задач нет"
+                                        color: "#565f89"
+                                        font.family: "JetBrains Mono"
+                                        font.pixelSize: 13
+                                        verticalAlignment: Text.AlignVCenter
+                                    }
+
+                                    Repeater {
+                                        model: root.taskGroupsForDate(calendarPopup.selectedDate)
+                                        delegate: Column {
+                                            required property var modelData
+                                            width: taskList.width
+                                            spacing: 4
+
+                                            Rectangle {
+                                                width: parent.width
+                                                height: 24
+                                                radius: 6
+                                                color: "#1f2335"
+
+                                                Text {
+                                                    anchors.left: parent.left
+                                                    anchors.leftMargin: 9
+                                                    anchors.verticalCenter: parent.verticalCenter
+                                                    text: modelData.label + "  ·  " + modelData.tasks.length
+                                                    color: root.groupColor(modelData.name)
+                                                    font.family: "JetBrains Mono"
+                                                    font.pixelSize: 12
+                                                    font.bold: true
+                                                }
+                                            }
+
+                                            Column {
+                                                id: groupTasks
+                                                width: parent.width
+                                                spacing: 4
+
+                                                Repeater {
+                                                    model: modelData.tasks
+                                                    delegate: Row {
+                                                        required property var modelData
+                                                        width: groupTasks.width
+                                                        height: 26
+                                                        spacing: 9
+
+                                                        Text {
+                                                            width: 20
+                                                            anchors.verticalCenter: parent.verticalCenter
+                                                            text: root.statusGlyph(modelData.status)
+                                                            color: root.statusColor(modelData.status)
+                                                            font.family: "JetBrains Mono"
+                                                            font.pixelSize: 17
+                                                            font.bold: true
+                                                            horizontalAlignment: Text.AlignHCenter
+                                                        }
+
+                                                        Text {
+                                                            anchors.verticalCenter: parent.verticalCenter
+                                                            width: parent.width - 29
+                                                            text: modelData.title || "Без названия"
+                                                            color: modelData.done ? "#565f89" : "#c0caf5"
+                                                            font.family: "JetBrains Mono"
+                                                            font.pixelSize: 13
+                                                            font.strikeout: modelData.done
+                                                            elide: Text.ElideRight
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                Rectangle {
+                                    visible: taskScroller.contentHeight > taskScroller.height
+                                    anchors.right: parent.right
+                                    y: taskScroller.contentHeight > taskScroller.height
+                                        ? taskScroller.contentY / (taskScroller.contentHeight - taskScroller.height) * (taskScroller.height - height)
+                                        : 0
+                                    width: 3
+                                    height: Math.max(24, taskScroller.height * taskScroller.height / taskScroller.contentHeight)
+                                    radius: 2
+                                    color: "#7aa2f7"
+                                }
+                            }
+
+                            Rectangle {
+                                width: parent.width
+                                height: 28
+                                radius: 8
+                                color: openTasksMouse.containsMouse ? "#292e42" : "#1f2335"
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: "󰈙  Открыть daily note"
+                                    color: "#bb9af7"
+                                    font.family: "JetBrains Mono"
+                                    font.pixelSize: 12
+                                }
+                                MouseArea {
+                                    id: openTasksMouse
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    onClicked: Quickshell.execDetached(["xdg-open", root.dailyFile(calendarPopup.selectedDate)])
+                                }
                             }
                         }
                     }
