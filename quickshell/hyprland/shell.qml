@@ -21,6 +21,7 @@ Scope {
     property string tasksDirectory: Quickshell.env("QS_DAILIES_DIR") || "/home/aragami3070/ObsidianWorkSpace/Obsidian/dailies"
     property var calendarTasks: []
     property var dailyFiles: ({})
+    property var statusOrder: [" ", "x", ">", "-", "!", "i"]
 
     function update(process) {
         process.running = false
@@ -105,6 +106,25 @@ Scope {
         return colors[status] || "#f78c6c"
     }
 
+    function nextStatus(status) {
+        var index = statusOrder.indexOf(status)
+        return statusOrder[(index + 1) % statusOrder.length]
+    }
+
+    function cycleTaskStatus(task) {
+        if (!task.file || !task.line || taskStatusProcess.running)
+            return
+
+        var next = nextStatus(task.status)
+        taskStatusProcess.exec([
+            "bash",
+            Quickshell.shellPath("update-task-status.sh"),
+            task.file,
+            String(task.line),
+            next
+        ])
+    }
+
     function dailyFile(day) {
         return dailyFiles[dateKey(day)] || tasksDirectory
     }
@@ -115,6 +135,7 @@ Scope {
         var fileDate = ""
         var currentFile = ""
         var taskGroup = "Other"
+        var fileLine = 0
         var files = {}
         var lines = markdown.split("\n")
 
@@ -126,10 +147,13 @@ Scope {
                 fileDate = fileMatch ? fileMatch[1] : ""
                 sectionDate = ""
                 taskGroup = "Other"
+                fileLine = 0
                 if (fileDate)
                     files[fileDate] = currentFile
                 continue
             }
+
+            fileLine++
 
             var heading = lines[i].match(/^#{1,6}\s+(\d{4}-\d{2}-\d{2})(?:\s|$)/)
             if (heading)
@@ -162,7 +186,8 @@ Scope {
                 group: taskGroup,
                 status: match[1],
                 done: match[1].toLowerCase() === "x",
-                file: currentFile
+                file: currentFile,
+                line: fileLine
             })
         }
 
@@ -242,6 +267,11 @@ Scope {
         stdout: StdioCollector { onStreamFinished: root.parseTasks(text) }
     }
     Timer { interval: 30000; running: true; repeat: true; onTriggered: root.update(tasksProcess) }
+
+    Process {
+        id: taskStatusProcess
+        onExited: root.update(tasksProcess)
+    }
 
     Connections {
         target: Hyprland
@@ -617,32 +647,42 @@ Scope {
 
                                                 Repeater {
                                                     model: modelData.tasks
-                                                    delegate: Row {
+                                                    delegate: Item {
                                                         required property var modelData
                                                         width: groupTasks.width
                                                         height: 26
-                                                        spacing: 9
 
-                                                        Text {
-                                                            width: 20
-                                                            anchors.verticalCenter: parent.verticalCenter
-                                                            text: root.statusGlyph(modelData.status)
-                                                            color: root.statusColor(modelData.status)
-                                                            font.family: "JetBrains Mono"
-                                                            font.pixelSize: 17
-                                                            font.bold: true
-                                                            horizontalAlignment: Text.AlignHCenter
+                                                        Row {
+                                                            anchors.fill: parent
+                                                            spacing: 9
+
+                                                            Text {
+                                                                width: 20
+                                                                anchors.verticalCenter: parent.verticalCenter
+                                                                text: root.statusGlyph(modelData.status)
+                                                                color: root.statusColor(modelData.status)
+                                                                font.family: "JetBrains Mono"
+                                                                font.pixelSize: 17
+                                                                font.bold: true
+                                                                horizontalAlignment: Text.AlignHCenter
+                                                            }
+
+                                                            Text {
+                                                                anchors.verticalCenter: parent.verticalCenter
+                                                                width: parent.width - 29
+                                                                text: modelData.title || "Без названия"
+                                                                color: modelData.done ? "#565f89" : "#c0caf5"
+                                                                font.family: "JetBrains Mono"
+                                                                font.pixelSize: 13
+                                                                font.strikeout: modelData.done
+                                                                elide: Text.ElideRight
+                                                            }
                                                         }
 
-                                                        Text {
-                                                            anchors.verticalCenter: parent.verticalCenter
-                                                            width: parent.width - 29
-                                                            text: modelData.title || "Без названия"
-                                                            color: modelData.done ? "#565f89" : "#c0caf5"
-                                                            font.family: "JetBrains Mono"
-                                                            font.pixelSize: 13
-                                                            font.strikeout: modelData.done
-                                                            elide: Text.ElideRight
+                                                        MouseArea {
+                                                            anchors.fill: parent
+                                                            acceptedButtons: Qt.LeftButton
+                                                            onClicked: root.cycleTaskStatus(modelData)
                                                         }
                                                     }
                                                 }
