@@ -1,0 +1,88 @@
+import QtQuick
+import Quickshell
+import Quickshell.Io
+
+// System values used by the bar. Keeping the polling here leaves the UI declarative.
+Item {
+    id: root
+    visible: false
+
+    property int workspaceRevision: 0
+    property string clockText: ""
+    property string keyboardLayout: "--"
+    property string volumeText: "  --%"
+    property string cpuText: "  --%"
+    property string memoryText: "  --%"
+    property string batteryText: "  --%"
+    property string temperatureText: "  --°C"
+    property string networkText: "⚠"
+
+    function update(process) {
+        process.running = false
+        process.running = true
+    }
+
+    Process {
+        id: clockProcess
+        command: ["date", "+%d %b - %H:%M"]
+        running: true
+        stdout: StdioCollector { onStreamFinished: root.clockText = text.trim() }
+    }
+    Timer { interval: 1000; running: true; repeat: true; onTriggered: root.update(clockProcess) }
+
+    Process {
+        id: layoutProcess
+        command: ["sh", "-c", "hyprctl devices -j | jq -r '.keyboards[] | select(.main==true) | .active_keymap' | head -n1"]
+        running: true
+        stdout: StdioCollector { onStreamFinished: root.keyboardLayout = text.trim() || "--" }
+    }
+    Timer { interval: 1000; running: true; repeat: true; onTriggered: root.update(layoutProcess) }
+
+    Process {
+        id: volumeProcess
+        command: ["sh", "-c", "wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{ printf \"%s %d%%\", ($3 == \"[MUTED]\" ? \"\" : \"\"), $2 * 100 }'"]
+        running: true
+        stdout: StdioCollector { onStreamFinished: root.volumeText = text.trim() || "  --%" }
+    }
+    Timer { interval: 1000; running: true; repeat: true; onTriggered: root.update(volumeProcess) }
+
+    Process {
+        id: cpuProcess
+        command: ["sh", "-c", "top -bn1 | awk '/Cpu\\(s\\)/ { printf \"  %d%%\", 100 - $8 }'"]
+        running: true
+        stdout: StdioCollector { onStreamFinished: root.cpuText = text.trim() || "  --%" }
+    }
+    Timer { interval: 3000; running: true; repeat: true; onTriggered: root.update(cpuProcess) }
+
+    Process {
+        id: memoryProcess
+        command: ["sh", "-c", "free -m | awk '/Mem:/ { printf \"  %d%%\", ($3 / $2) * 100 }'"]
+        running: true
+        stdout: StdioCollector { onStreamFinished: root.memoryText = text.trim() || "  --%" }
+    }
+    Timer { interval: 3000; running: true; repeat: true; onTriggered: root.update(memoryProcess) }
+
+    Process {
+        id: batteryProcess
+        command: ["sh", "-c", "capacity=$(cat /sys/class/power_supply/BAT*/capacity 2>/dev/null | head -n1); status=$(cat /sys/class/power_supply/BAT*/status 2>/dev/null | head -n1); [ -z \"$capacity\" ] && exit 0; icon=\"\"; [ \"$capacity\" -lt 20 ] && icon=\"\"; [ \"$capacity\" -lt 40 ] && icon=\"\"; [ \"$capacity\" -lt 60 ] && icon=\"\"; [ \"$capacity\" -lt 80 ] && icon=\"\"; [ \"$status\" = Charging ] && icon=\"\"; printf \"%s  %s%%\" \"$icon\" \"$capacity\""]
+        running: true
+        stdout: StdioCollector { onStreamFinished: root.batteryText = text.trim() || "" }
+    }
+    Timer { interval: 10000; running: true; repeat: true; onTriggered: root.update(batteryProcess) }
+
+    Process {
+        id: temperatureProcess
+        command: ["sh", "-c", "sensors 2>/dev/null | awk '/Package id 0:|Tctl:|CPU Temperature:/ { gsub(/[+°C]/, \"\", $3); printf \"  %d°C\", $3; exit }'"]
+        running: true
+        stdout: StdioCollector { onStreamFinished: root.temperatureText = text.trim() || "  --°C" }
+    }
+    Timer { interval: 5000; running: true; repeat: true; onTriggered: root.update(temperatureProcess) }
+
+    Process {
+        id: networkProcess
+        command: ["sh", "-c", "if nmcli -t -f DEVICE,TYPE,STATE dev 2>/dev/null | grep -q ':wifi:connected'; then printf ''; elif nmcli -t -f DEVICE,TYPE,STATE dev 2>/dev/null | grep -q ':ethernet:connected'; then printf ''; else printf '⚠'; fi"]
+        running: true
+        stdout: StdioCollector { onStreamFinished: root.networkText = text.trim() || "⚠" }
+    }
+    Timer { interval: 5000; running: true; repeat: true; onTriggered: root.update(networkProcess) }
+}
