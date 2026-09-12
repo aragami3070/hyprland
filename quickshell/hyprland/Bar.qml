@@ -42,6 +42,10 @@ PanelWindow {
         return false
     }
 
+    function fontScale(pixelSize) {
+        return (pixelSize + 0.5) / pixelSize
+    }
+
     Rectangle {
         anchors.fill: parent
         color: "#000000"
@@ -61,6 +65,7 @@ PanelWindow {
                 color: "#bb9af7"
                 font.family: bar.barFont
                 font.pixelSize: 18
+                scale: bar.fontScale(18)
                 MouseArea { anchors.fill: parent; onClicked: Quickshell.execDetached(["wofi", "--show", "drun"]) }
             }
 
@@ -79,6 +84,7 @@ PanelWindow {
                         color: bar.workspaceIsActive(index + 1) ? "#16161e" : "#bb9af7"
                         font.family: bar.barFont
                         font.pixelSize: 16
+                        scale: bar.fontScale(16)
                     }
                     MouseArea {
                         anchors.fill: parent
@@ -94,6 +100,7 @@ PanelWindow {
             color: "#bb9af7"
             font.family: bar.barFont
             font.pixelSize: 17
+            scale: bar.fontScale(17)
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
@@ -109,16 +116,17 @@ PanelWindow {
             anchors.rightMargin: 10
             anchors.verticalCenter: parent.verticalCenter
             spacing: 10
-            Text { text: systemData.keyboardLayout; color: "#e0af68"; font.family: bar.barFont; font.pixelSize: 16 }
-            Text { text: systemData.volumeText; color: "#f7768e"; font.family: bar.barFont; font.pixelSize: 16; MouseArea { anchors.fill: parent; onClicked: Quickshell.execDetached(["pavucontrol"]) } }
-            Text { text: systemData.cpuText; color: "#ff9e64"; font.family: bar.barFont; font.pixelSize: 16 }
-            Text { text: systemData.batteryText; color: "#9ece6a"; font.family: bar.barFont; font.pixelSize: 16 }
+            Text { text: systemData.keyboardLayout; color: "#e0af68"; font.family: bar.barFont; font.pixelSize: 16; scale: bar.fontScale(16) }
+            Text { text: systemData.volumeText; color: "#f7768e"; font.family: bar.barFont; font.pixelSize: 16; scale: bar.fontScale(16); MouseArea { anchors.fill: parent; onClicked: Quickshell.execDetached(["pavucontrol"]) } }
+            Text { text: systemData.cpuText; color: "#ff9e64"; font.family: bar.barFont; font.pixelSize: 16; scale: bar.fontScale(16) }
+            Text { text: systemData.batteryText; color: "#9ece6a"; font.family: bar.barFont; font.pixelSize: 16; scale: bar.fontScale(16) }
             Text {
                 id: networkModule
                 text: bar.networkShowsIp ? systemData.networkIpText : systemData.networkText
                 color: "#e0af68"
                 font.family: bar.barFont
                 font.pixelSize: 16
+                scale: bar.fontScale(16)
                 MouseArea {
                     anchors.fill: parent
                     acceptedButtons: Qt.LeftButton | Qt.RightButton
@@ -132,7 +140,7 @@ PanelWindow {
                     }
                 }
             }
-            Text { text: systemData.temperatureText; color: "#7dcfff"; font.family: bar.barFont; font.pixelSize: 16 }
+            Text { text: systemData.temperatureText; color: "#7dcfff"; font.family: bar.barFont; font.pixelSize: 16; scale: bar.fontScale(16) }
         }
     }
 

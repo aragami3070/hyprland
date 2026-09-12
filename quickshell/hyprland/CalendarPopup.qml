@@ -53,7 +53,7 @@ PopupWindow {
                     text: Qt.formatDate(calendarPopup.shownDate, "MMMM yyyy")
                     color: "#c0caf5"
                     font.family: "JetBrains Mono"
-                    font.pixelSize: 18
+                    font.pixelSize: 19
                     font.bold: true
                     verticalAlignment: Text.AlignVCenter
                 }
@@ -63,7 +63,7 @@ PopupWindow {
                     height: 30
                     radius: 7
                     color: previousMouse.containsMouse ? "#292e42" : "transparent"
-                    Text { anchors.centerIn: parent; text: "‹"; color: "#bb9af7"; font.pixelSize: 24 }
+                    Text { anchors.centerIn: parent; text: "‹"; color: "#bb9af7"; font.pixelSize: 25 }
                     MouseArea { id: previousMouse; anchors.fill: parent; hoverEnabled: true; onClicked: calendarPopup.changeMonth(-1) }
                 }
                 Rectangle {
@@ -71,7 +71,7 @@ PopupWindow {
                     height: 30
                     radius: 7
                     color: nextMouse.containsMouse ? "#292e42" : "transparent"
-                    Text { anchors.centerIn: parent; text: "›"; color: "#bb9af7"; font.pixelSize: 24 }
+                    Text { anchors.centerIn: parent; text: "›"; color: "#bb9af7"; font.pixelSize: 25 }
                     MouseArea { id: nextMouse; anchors.fill: parent; hoverEnabled: true; onClicked: calendarPopup.changeMonth(1) }
                 }
             }
@@ -89,7 +89,7 @@ PopupWindow {
                         text: modelData
                         color: index > 4 ? "#f7768e" : "#565f89"
                         font.family: "JetBrains Mono"
-                        font.pixelSize: 12
+                        font.pixelSize: 13
                         horizontalAlignment: Text.AlignHCenter
                     }
                 }
@@ -124,7 +124,7 @@ PopupWindow {
                             text: day.getDate()
                             color: parent.selected || calendarPopup.isToday(parent.day) ? "#16161e" : (parent.day.getMonth() === calendarPopup.shownDate.getMonth() ? "#c0caf5" : "#3b4261")
                             font.family: "JetBrains Mono"
-                            font.pixelSize: 14
+                            font.pixelSize: 15
                             font.bold: parent.selected || calendarPopup.isToday(parent.day)
                         }
 
@@ -141,7 +141,7 @@ PopupWindow {
                                 anchors.centerIn: parent
                                 text: parent.parent.tasksCount > 9 ? "9+" : parent.parent.tasksCount
                                 color: parent.parent.selected ? "#7aa2f7" : "#16161e"
-                                font.pixelSize: 8
+                                font.pixelSize: 9
                                 font.bold: true
                             }
                         }
@@ -168,7 +168,7 @@ PopupWindow {
                     text: Qt.formatDate(calendarPopup.selectedDate, "dddd, d MMMM")
                     color: "#c0caf5"
                     font.family: "JetBrains Mono"
-                    font.pixelSize: 14
+                    font.pixelSize: 15
                     font.bold: true
                 }
                 Rectangle {
@@ -176,7 +176,7 @@ PopupWindow {
                     height: 24
                     radius: 7
                     color: todayMouse.containsMouse ? "#292e42" : "transparent"
-                    Text { anchors.centerIn: parent; text: "Сегодня"; color: "#7aa2f7"; font.family: "JetBrains Mono"; font.pixelSize: 12 }
+                    Text { anchors.centerIn: parent; text: "Сегодня"; color: "#7aa2f7"; font.family: "JetBrains Mono"; font.pixelSize: 13 }
                     MouseArea {
                         id: todayMouse
                         anchors.fill: parent
@@ -212,7 +212,7 @@ PopupWindow {
                         text: "На этот день задач нет"
                         color: "#565f89"
                         font.family: "JetBrains Mono"
-                        font.pixelSize: 13
+                        font.pixelSize: 14
                         verticalAlignment: Text.AlignVCenter
                     }
 
@@ -236,7 +236,7 @@ PopupWindow {
                                     text: modelData.label + "  ·  " + modelData.tasks.length
                                     color: taskService.groupColor(modelData.name)
                                     font.family: "JetBrains Mono"
-                                    font.pixelSize: 12
+                                    font.pixelSize: 13
                                     font.bold: true
                                 }
                             }
@@ -263,7 +263,7 @@ PopupWindow {
                                                 text: taskService.statusGlyph(modelData.status)
                                                 color: taskService.statusColor(modelData.status)
                                                 font.family: "JetBrains Mono"
-                                                font.pixelSize: 17
+                                                font.pixelSize: 18
                                                 font.bold: true
                                                 horizontalAlignment: Text.AlignHCenter
                                             }
@@ -274,7 +274,7 @@ PopupWindow {
                                                 text: modelData.title || "Без названия"
                                                 color: modelData.done ? "#565f89" : "#c0caf5"
                                                 font.family: "JetBrains Mono"
-                                                font.pixelSize: 13
+                                                font.pixelSize: 14
                                                 font.strikeout: modelData.done
                                                 elide: Text.ElideRight
                                             }
@@ -315,7 +315,7 @@ PopupWindow {
                     text: "󰈙  Открыть в tmux · obsidian"
                     color: "#bb9af7"
                     font.family: "JetBrains Mono"
-                    font.pixelSize: 12
+                    font.pixelSize: 13
                 }
                 MouseArea {
                     id: openTasksMouse
