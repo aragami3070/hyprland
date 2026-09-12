@@ -12,6 +12,8 @@ Item {
     property string keyboardLayout: "--"
     property string volumeText: "  --%"
     property string cpuText: "  --%"
+    property string bluetoothState: "missing"
+    property string bluetoothText: ""
     property string batteryText: "  --%"
     property string batteryTooltip: "Оставшееся время пока неизвестно"
     property string temperatureText: " --°C"
@@ -29,6 +31,19 @@ Item {
         update(networkProcess)
     }
 
+    function refreshBluetooth() {
+        update(bluetoothProcess)
+    }
+
+    function toggleBluetooth() {
+        if (bluetoothState === "missing" || bluetoothToggleProcess.running)
+            return
+
+        var nextPower = bluetoothState === "off" ? "on" : "off"
+        bluetoothToggleProcess.command = ["bluetoothctl", "power", nextPower]
+        bluetoothToggleProcess.running = true
+    }
+
     function parseNetwork(text) {
         var lines = text.replace(/\r/g, "").split("\n")
         networkText = lines[0] || "⚠"
@@ -41,6 +56,12 @@ Item {
         var lines = text.trim().split("\n")
         batteryText = lines[0] || ""
         batteryTooltip = lines[1] || "Оставшееся время пока неизвестно"
+    }
+
+    function parseBluetooth(text) {
+        var lines = text.replace(/\r/g, "").split("\n")
+        bluetoothState = lines[0] || "missing"
+        bluetoothText = lines[1] || ""
     }
 
     Process {
@@ -74,6 +95,26 @@ Item {
         stdout: StdioCollector { onStreamFinished: root.cpuText = text.trim() || "  --%" }
     }
     Timer { interval: 3000; running: true; repeat: true; onTriggered: root.update(cpuProcess) }
+
+    Process {
+        id: bluetoothProcess
+        command: ["bash", Quickshell.shellPath("bluetooth-info.sh")]
+        running: true
+        stdout: StdioCollector { onStreamFinished: root.parseBluetooth(text) }
+    }
+    Timer { interval: 5000; running: true; repeat: true; onTriggered: root.update(bluetoothProcess) }
+
+    Process {
+        id: bluetoothToggleProcess
+        onExited: bluetoothRefreshAfterToggle.restart()
+    }
+
+    Timer {
+        id: bluetoothRefreshAfterToggle
+        interval: 300
+        repeat: false
+        onTriggered: root.refreshBluetooth()
+    }
 
     Process {
         id: batteryProcess

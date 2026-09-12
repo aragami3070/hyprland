@@ -71,7 +71,7 @@ install_from_pacman(){
         qt5-quickcontrols2 man-pages-ru tldr python-pygments python-pip dotnet-runtime \
         aspnet-runtime openssl meson mpv nmap ghidra socat birdfont discord syncthing  \
         python-virtualenv hyprland-qt-support hyprpolkitagent just archlinux-keyring \
-        gnome-keyring qbittorrent fzf ctags wine pavucontrol
+        gnome-keyring qbittorrent fzf ctags wine pavucontrol blueman
 	echo -e "${green}    ✔ Pacman packages installed.${reset}"
 
 }

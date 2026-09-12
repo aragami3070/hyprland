@@ -164,6 +164,28 @@ PanelWindow {
             Text { text: systemData.keyboardLayout; color: "#e0af68"; font.family: bar.barFont; font.pixelSize: 16; scale: bar.fontScale(16) }
             Text { text: systemData.volumeText; color: "#f7768e"; font.family: bar.barFont; font.pixelSize: 16; scale: bar.fontScale(16); MouseArea { anchors.fill: parent; onClicked: Quickshell.execDetached(["pavucontrol"]) } }
             Text {
+                visible: systemData.bluetoothState !== "missing"
+                text: systemData.bluetoothText
+                color: systemData.bluetoothState === "connected" ? "#7dcfff"
+                    : systemData.bluetoothState === "on" ? "#bb9af7"
+                    : "#565f89"
+                font.family: bar.barFont
+                font.pixelSize: 16
+                scale: bar.fontScale(16)
+
+                MouseArea {
+                    anchors.fill: parent
+                    acceptedButtons: Qt.LeftButton | Qt.RightButton
+                    onClicked: function(mouse) {
+                        if (mouse.button === Qt.RightButton) {
+                            Quickshell.execDetached(["blueman-manager"])
+                        } else {
+                            systemData.toggleBluetooth()
+                        }
+                    }
+                }
+            }
+            Text {
                 id: cpuModule
                 text: systemData.cpuText
                 color: "#ff9e64"
