@@ -230,6 +230,7 @@ PanelWindow {
             }
             Text {
                 id: networkModule
+                visible: systemData.ethernetText.length === 0
                 text: bar.networkShowsIp ? systemData.networkIpText : systemData.networkText
                 color: "#e0af68"
                 font.family: bar.barFont
