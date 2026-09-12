@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Hyprland
+import Quickshell.Wayland
 
 // The visible top bar and its mouse bindings.
 PanelWindow {
@@ -14,6 +15,7 @@ PanelWindow {
     color: "transparent"
     implicitHeight: 32
     exclusiveZone: 32
+    WlrLayershell.layer: WlrLayer.Bottom
 
     property string monitorName: modelData.name
     property var hyprMonitor: Hyprland.monitorFor(modelData)
