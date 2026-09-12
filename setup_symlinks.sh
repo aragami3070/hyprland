@@ -46,6 +46,11 @@ mkdir ~/.config/waybar
 rm ~/.config/waybar -r
 ln -s ~/.config/hyprland/waybar ~/.config/waybar
 
+# wireplumber
+mkdir -p ~/.config/wireplumber/wireplumber.conf.d
+ln -sfn ~/.config/hyprland/wireplumber/wireplumber.conf.d/51-razer-barracuda.conf \
+  ~/.config/wireplumber/wireplumber.conf.d/51-razer-barracuda.conf
+
 # wofi
 mkdir ~/.config/wofi
 rm ~/.config/wofi -r
