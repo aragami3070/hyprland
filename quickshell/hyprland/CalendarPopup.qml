@@ -20,6 +20,18 @@ PopupWindow {
     property date selectedDate: new Date()
     property var weekdays: ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
 
+    onClosed: {
+        if (barWindow)
+            barWindow.calendarVisible = false
+    }
+
+    onVisibleChanged: {
+        if (!visible) {
+            if (barWindow)
+                barWindow.calendarVisible = false
+        }
+    }
+
     function changeMonth(offset) {
         shownDate = new Date(shownDate.getFullYear(), shownDate.getMonth() + offset, 1)
     }

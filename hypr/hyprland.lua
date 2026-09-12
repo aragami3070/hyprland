@@ -297,8 +297,13 @@ hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exit())
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + SHIFT + V", hl.dsp.window.fullscreen())
-hl.bind(mainMod .. " + SHIFT + O", hl.dsp.exec_cmd("pkill -x quickshell"))
-hl.bind(mainMod .. " + SHIFT + P", hl.dsp.exec_cmd("pkill -x quickshell 2>/dev/null; sleep 0.2; quickshell -n -d -c hyprland"))
+hl.bind(
+    mainMod .. " + SHIFT + O",
+    hl.dsp.exec_cmd(
+        "if pgrep -x quickshell >/dev/null; then pkill -x quickshell; else quickshell -n -d -c hyprland; fi"
+    )
+)
+hl.bind(mainMod .. " + SHIFT + P", hl.dsp.exec_cmd("qs -c hyprland ipc call bar toggleMode"))
 hl.bind(mainMod .. " + F", hl.dsp.exec_cmd(menu))
 hl.bind(mainMod .. " + SHIFT + D", function()
     monitors.toggle_mode()

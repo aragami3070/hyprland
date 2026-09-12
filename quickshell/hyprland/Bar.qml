@@ -10,18 +10,21 @@ PanelWindow {
     required property var modelData
     required property var systemData
     required property var taskService
+    required property bool autoHide
 
     screen: modelData
     color: "transparent"
     implicitHeight: 32
-    exclusiveZone: 32
-    WlrLayershell.layer: WlrLayer.Bottom
+    exclusiveZone: autoHide ? 0 : 32
+    WlrLayershell.layer: autoHide ? WlrLayer.Overlay : WlrLayer.Bottom
 
     property string monitorName: modelData.name
     property var hyprMonitor: Hyprland.monitorFor(modelData)
     property bool calendarVisible: false
     property bool networkShowsIp: false
+    property bool revealHold: false
     property string barFont: "UbuntuMono Nerd Font"
+    readonly property bool revealed: !autoHide || revealHold || calendarVisible
 
     anchors {
         top: true
@@ -29,9 +32,39 @@ PanelWindow {
         right: true
     }
     margins {
-        top: 2
+        top: autoHide ? (revealed ? 0 : -30) : 2
         left: 10
         right: 10
+    }
+
+    Behavior on margins.top {
+        NumberAnimation {
+            duration: 140
+            easing.type: Easing.OutCubic
+        }
+    }
+
+    HoverHandler {
+        id: revealHover
+
+        onHoveredChanged: {
+            if (hovered) {
+                hideTimer.stop()
+                bar.revealHold = true
+            } else if (!bar.calendarVisible) {
+                hideTimer.restart()
+            }
+        }
+    }
+
+    Timer {
+        id: hideTimer
+        interval: 10
+        repeat: false
+        onTriggered: {
+            if (!revealHover.hovered && !bar.calendarVisible)
+                bar.revealHold = false
+        }
     }
 
     function workspaceIsActive(id) {
@@ -54,6 +87,11 @@ PanelWindow {
         radius: 13
         border.color: "#292e42"
         border.width: 1
+        opacity: bar.revealed ? 1 : 0
+
+        Behavior on opacity {
+            NumberAnimation { duration: 100 }
+        }
 
         Row {
             id: leftModules
