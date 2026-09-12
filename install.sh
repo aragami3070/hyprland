@@ -51,8 +51,8 @@ check_command() {
 
 yay_install() {
 	echo -e "${blue}    Installing yay...${reset}"
-    git clone https://aur.archlinux.org/yay.git "${HOME}/yay"
     sudo pacman -S base-devel git --needed --noconfirm
+    git clone https://aur.archlinux.org/yay.git "${HOME}/yay"
 	cd "$HOME/yay"
 	makepkg -si --noconfirm
 	cd - &>/dev/null
@@ -63,15 +63,16 @@ install_from_pacman(){
 	# NOTE: pacman install without confirm and not reinstall installed packages
 	echo -e "${blue}    Installing required packages...${reset}"
 	sudo pacman -Syu --noconfirm --needed \
-		zsh gcc neovim ripgrep wl-clipboard pipewire pam brightnessctl thunar zip \
-		unzip python3 firefox chromium telegram-desktop curl rustup npm yarn cmake \
+		zsh gcc neovim ripgrep wl-clipboard pipewire pam brightnessctl thunar \
+		unzip firefox chromium telegram-desktop curl rustup npm yarn cmake zip \
         eza tmux postgresql docker docker-compose hyprlock hyprpaper quickshell \
-		nwg-look ttf-ubuntu-nerd ttf-ubuntu-mono-nerd wofi zoxide zathura metasploit \
-        virtualbox typescript vue-typescript-plugin qt6-svg qt6-declarative \
-        qt5-quickcontrols2 man-pages-ru tldr python-pygments python-pip dotnet-runtime \
-        aspnet-runtime openssl meson mpv nmap ghidra socat birdfont discord syncthing  \
-        python-virtualenv hyprland-qt-support hyprpolkitagent just archlinux-keyring \
-        gnome-keyring qbittorrent fzf ctags wine pavucontrol blueman
+		nwg-look ttf-ubuntu-nerd ttf-ubuntu-mono-nerd wofi zoxide zathura  \
+        metasploit virtualbox typescript qt6-svg qt6-declarative \
+        qt5-quickcontrols2 man-pages-ru tldr python-pygments python-pip \
+        dotnet-runtime aspnet-runtime openssl meson mpv nmap ghidra socat \
+        birdfont discord syncthing python-virtualenv hyprland-qt-support \
+        hyprpolkitagent just archlinux-keyring gnome-keyring qbittorrent \
+        fzf ctags wine pavucontrol blueman
 	echo -e "${green}    ✔ Pacman packages installed.${reset}"
 
 }
