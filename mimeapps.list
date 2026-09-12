@@ -1,5 +1,5 @@
 [Added Associations]
-application/pdf=zathura.desktop;chromium.desktop;org.pwmt.zathura.desktop;org.pwmt.zathura-pdf-mupdf.desktop;
+application/pdf=zathura.desktop;
 application/vnd.anki=anki.desktop;
 application/vnd.openxmlformats-officedocument.wordprocessingml.document=org.pwmt.zathura-pdf-mupdf.desktop;
 application/vnd.rar=org.kde.dolphin.desktop;
@@ -11,13 +11,15 @@ application/x-extension-xhtml=firefox.desktop;
 application/xhtml+xml=firefox.desktop;
 application/zip=org.kde.dolphin.desktop;
 image/svg+xml=firefox.desktop;
+x-scheme-handler/anytype=anytype.desktop
 x-scheme-handler/chrome=firefox.desktop;
 x-scheme-handler/http=firefox.desktop;
 x-scheme-handler/https=firefox.desktop;
 x-scheme-handler/mattermost=mattermost-desktop.desktop;
+application/x-zerosize=nvim.desktop;
 
 [Default Applications]
-application/pdf=zathura.desktop;
+application/pdf=zathura.desktop;org.pwmt.zathura-pdf-mupdf.desktop;
 application/vnd.openxmlformats-officedocument.wordprocessingml.document=org.pwmt.zathura-pdf-mupdf.desktop
 application/vnd.rar=org.kde.dolphin.desktop
 application/x-extension-htm=firefox.desktop
