@@ -33,7 +33,7 @@ PopupWindow {
 
     Rectangle {
         anchors.fill: parent
-        color: "#1a1b26"
+        color: "#000000"
         radius: 13
         border.color: "#292e42"
         border.width: 1
@@ -312,7 +312,7 @@ PopupWindow {
                 color: openTasksMouse.containsMouse ? "#292e42" : "#1f2335"
                 Text {
                     anchors.centerIn: parent
-                    text: "󰈙  Открыть daily note"
+                    text: "󰈙  Открыть в tmux · obsidian"
                     color: "#bb9af7"
                     font.family: "JetBrains Mono"
                     font.pixelSize: 12
@@ -321,7 +321,11 @@ PopupWindow {
                     id: openTasksMouse
                     anchors.fill: parent
                     hoverEnabled: true
-                    onClicked: Quickshell.execDetached(["xdg-open", taskService.dailyFile(calendarPopup.selectedDate)])
+                    onClicked: Quickshell.execDetached([
+                        "bash",
+                        Quickshell.shellPath("open-daily-in-obsidian.sh"),
+                        taskService.dailyFile(calendarPopup.selectedDate)
+                    ])
                 }
             }
         }
