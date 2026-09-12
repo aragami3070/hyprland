@@ -22,6 +22,7 @@ PanelWindow {
     property var hyprMonitor: Hyprland.monitorFor(modelData)
     property bool calendarVisible: false
     property bool networkShowsIp: false
+    property bool ethernetShowsIp: false
     property bool revealHold: false
     property bool batteryTooltipVisible: false
     property string barFont: "UbuntuMono Nerd Font"
@@ -203,6 +204,27 @@ PanelWindow {
                         else {
                             systemData.refreshNetwork()
                             bar.networkShowsIp = !bar.networkShowsIp
+                        }
+                    }
+                }
+            }
+            Text {
+                id: ethernetModule
+                visible: systemData.ethernetText.length > 0
+                text: bar.ethernetShowsIp ? systemData.ethernetIpText : systemData.ethernetText
+                color: "#73daca"
+                font.family: bar.barFont
+                font.pixelSize: 16
+                scale: bar.fontScale(16)
+                MouseArea {
+                    anchors.fill: parent
+                    acceptedButtons: Qt.LeftButton | Qt.RightButton
+                    onClicked: function(mouse) {
+                        if (mouse.button === Qt.RightButton)
+                            Quickshell.execDetached(["networkmanager_dmenu"])
+                        else {
+                            systemData.refreshNetwork()
+                            bar.ethernetShowsIp = !bar.ethernetShowsIp
                         }
                     }
                 }

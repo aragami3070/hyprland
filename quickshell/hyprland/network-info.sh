@@ -14,11 +14,15 @@ if [[ -n "$wifi_device" ]]; then
     network_name=${ssid:-$wifi_device}
 
     if [[ -n "$cidr" ]]; then
-        printf '  %s%%\n%s @ %s: %s\n' "${signal_strength:---}" "$wifi_device" "$network_name" "$cidr"
+        wifi_text="  ${signal_strength:---}%"
+        wifi_ip_text="$wifi_device @ $network_name: $cidr"
     else
-        printf '  %s%%\n%s @ %s: IP —\n' "${signal_strength:---}" "$wifi_device" "$network_name"
+        wifi_text="  ${signal_strength:---}%"
+        wifi_ip_text="$wifi_device @ $network_name: IP —"
     fi
-    exit 0
+else
+    wifi_text="⚠"
+    wifi_ip_text="IP: —"
 fi
 
 ethernet_device=$(nmcli -t -f DEVICE,TYPE,STATE device status 2>/dev/null \
@@ -28,8 +32,12 @@ if [[ -n "$ethernet_device" ]]; then
     cidr=$(ip -4 -o address show dev "$ethernet_device" scope global 2>/dev/null \
         | awk '{ print $4; exit }')
 
-    printf '%s  \n%s: %s\n' "${cidr:-}" "$ethernet_device" "${cidr:-IP —}"
-    exit 0
+    ethernet_text="󰈀"
+    ethernet_ip_text="$ethernet_device: ${cidr:-IP —}"
+else
+    ethernet_text=""
+    ethernet_ip_text=""
 fi
 
-printf '⚠\nIP: —\n'
+printf '%s\n%s\n%s\n%s\n' \
+    "$wifi_text" "$wifi_ip_text" "$ethernet_text" "$ethernet_ip_text"

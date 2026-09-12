@@ -17,6 +17,8 @@ Item {
     property string temperatureText: " --°C"
     property string networkText: "⚠"
     property string networkIpText: "IP: —"
+    property string ethernetText: ""
+    property string ethernetIpText: ""
 
     function update(process) {
         process.running = false
@@ -28,9 +30,11 @@ Item {
     }
 
     function parseNetwork(text) {
-        var lines = text.trim().split("\n")
+        var lines = text.replace(/\r/g, "").split("\n")
         networkText = lines[0] || "⚠"
         networkIpText = lines[1] || "IP: —"
+        ethernetText = lines[2] || ""
+        ethernetIpText = lines[3] || ""
     }
 
     function parseBattery(text) {
