@@ -13,6 +13,7 @@ Item {
     property string volumeText: "  --%"
     property string cpuText: "  --%"
     property string batteryText: "  --%"
+    property string batteryTooltip: "Оставшееся время пока неизвестно"
     property string temperatureText: " --°C"
     property string networkText: "⚠"
     property string networkIpText: "IP: —"
@@ -30,6 +31,12 @@ Item {
         var lines = text.trim().split("\n")
         networkText = lines[0] || "⚠"
         networkIpText = lines[1] || "IP: —"
+    }
+
+    function parseBattery(text) {
+        var lines = text.trim().split("\n")
+        batteryText = lines[0] || ""
+        batteryTooltip = lines[1] || "Оставшееся время пока неизвестно"
     }
 
     Process {
@@ -66,9 +73,9 @@ Item {
 
     Process {
         id: batteryProcess
-        command: ["sh", "-c", "capacity=$(cat /sys/class/power_supply/BAT*/capacity 2>/dev/null | head -n1); status=$(cat /sys/class/power_supply/BAT*/status 2>/dev/null | head -n1); [ -z \"$capacity\" ] && exit 0; if [ \"$status\" = Charging ]; then icon=\"\"; elif [ \"$capacity\" -lt 20 ]; then icon=\"\"; elif [ \"$capacity\" -lt 40 ]; then icon=\"\"; elif [ \"$capacity\" -lt 60 ]; then icon=\"\"; elif [ \"$capacity\" -lt 80 ]; then icon=\"\"; else icon=\"\"; fi; printf \"%s  %s%%\" \"$icon\" \"$capacity\""]
+        command: ["bash", Quickshell.shellPath("battery-info.sh")]
         running: true
-        stdout: StdioCollector { onStreamFinished: root.batteryText = text.trim() || "" }
+        stdout: StdioCollector { onStreamFinished: root.parseBattery(text) }
     }
     Timer { interval: 10000; running: true; repeat: true; onTriggered: root.update(batteryProcess) }
 

@@ -23,6 +23,7 @@ PanelWindow {
     property bool calendarVisible: false
     property bool networkShowsIp: false
     property bool revealHold: false
+    property bool batteryTooltipVisible: false
     property string barFont: "UbuntuMono Nerd Font"
     readonly property bool revealed: !autoHide || revealHold || calendarVisible
 
@@ -159,7 +160,33 @@ PanelWindow {
             Text { text: systemData.keyboardLayout; color: "#e0af68"; font.family: bar.barFont; font.pixelSize: 16; scale: bar.fontScale(16) }
             Text { text: systemData.volumeText; color: "#f7768e"; font.family: bar.barFont; font.pixelSize: 16; scale: bar.fontScale(16); MouseArea { anchors.fill: parent; onClicked: Quickshell.execDetached(["pavucontrol"]) } }
             Text { text: systemData.cpuText; color: "#ff9e64"; font.family: bar.barFont; font.pixelSize: 16; scale: bar.fontScale(16) }
-            Text { text: systemData.batteryText; color: "#9ece6a"; font.family: bar.barFont; font.pixelSize: 16; scale: bar.fontScale(16) }
+            Text {
+                id: batteryModule
+                text: systemData.batteryText
+                color: "#9ece6a"
+                font.family: bar.barFont
+                font.pixelSize: 16
+                scale: bar.fontScale(16)
+
+                HoverHandler {
+                    id: batteryHover
+                    onHoveredChanged: {
+                        if (hovered)
+                            batteryTooltipDelay.restart()
+                        else {
+                            batteryTooltipDelay.stop()
+                            bar.batteryTooltipVisible = false
+                        }
+                    }
+                }
+
+                Timer {
+                    id: batteryTooltipDelay
+                    interval: 250
+                    repeat: false
+                    onTriggered: bar.batteryTooltipVisible = batteryHover.hovered
+                }
+            }
             Text {
                 id: networkModule
                 text: bar.networkShowsIp ? systemData.networkIpText : systemData.networkText
@@ -188,5 +215,18 @@ PanelWindow {
         id: calendarPopup
         barWindow: bar
         taskService: bar.taskService
+    }
+
+    LazyLoader {
+        active: bar.batteryTooltipVisible
+
+        BatteryTooltip {
+            barWindow: bar
+            anchorItem: batteryModule
+            tooltipText: systemData.batteryTooltip
+            visible: true
+
+            onClosed: bar.batteryTooltipVisible = false
+        }
     }
 }
