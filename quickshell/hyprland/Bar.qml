@@ -21,12 +21,14 @@ PanelWindow {
     property string monitorName: modelData.name
     property var hyprMonitor: Hyprland.monitorFor(modelData)
     property bool calendarVisible: false
+    property bool cpuPopupVisible: false
     property bool networkShowsIp: false
     property bool ethernetShowsIp: false
     property bool revealHold: false
     property bool batteryTooltipVisible: false
     property string barFont: "UbuntuMono Nerd Font"
-    readonly property bool revealed: !autoHide || revealHold || calendarVisible
+    readonly property bool pinnedPopupVisible: calendarVisible || cpuPopupVisible
+    readonly property bool revealed: !autoHide || revealHold || pinnedPopupVisible
 
     anchors {
         top: true
@@ -53,7 +55,7 @@ PanelWindow {
             if (hovered) {
                 hideTimer.stop()
                 bar.revealHold = true
-            } else if (!bar.calendarVisible) {
+            } else if (!bar.pinnedPopupVisible) {
                 hideTimer.restart()
             }
         }
@@ -64,7 +66,7 @@ PanelWindow {
         interval: 10
         repeat: false
         onTriggered: {
-            if (!revealHover.hovered && !bar.calendarVisible)
+            if (!revealHover.hovered && !bar.pinnedPopupVisible)
                 bar.revealHold = false
         }
     }
@@ -146,6 +148,7 @@ PanelWindow {
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
+                    bar.cpuPopupVisible = false
                     taskService.refresh()
                     bar.calendarVisible = !bar.calendarVisible
                 }
@@ -160,7 +163,22 @@ PanelWindow {
             spacing: 10
             Text { text: systemData.keyboardLayout; color: "#e0af68"; font.family: bar.barFont; font.pixelSize: 16; scale: bar.fontScale(16) }
             Text { text: systemData.volumeText; color: "#f7768e"; font.family: bar.barFont; font.pixelSize: 16; scale: bar.fontScale(16); MouseArea { anchors.fill: parent; onClicked: Quickshell.execDetached(["pavucontrol"]) } }
-            Text { text: systemData.cpuText; color: "#ff9e64"; font.family: bar.barFont; font.pixelSize: 16; scale: bar.fontScale(16) }
+            Text {
+                id: cpuModule
+                text: systemData.cpuText
+                color: "#ff9e64"
+                font.family: bar.barFont
+                font.pixelSize: 16
+                scale: bar.fontScale(16)
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        bar.calendarVisible = false
+                        bar.cpuPopupVisible = !bar.cpuPopupVisible
+                    }
+                }
+            }
             Text {
                 id: batteryModule
                 text: systemData.batteryText
@@ -237,6 +255,14 @@ PanelWindow {
         id: calendarPopup
         barWindow: bar
         taskService: bar.taskService
+    }
+
+    CpuPopup {
+        barWindow: bar
+        anchorItem: cpuModule
+        visible: bar.cpuPopupVisible
+
+        onClosed: bar.cpuPopupVisible = false
     }
 
     LazyLoader {
