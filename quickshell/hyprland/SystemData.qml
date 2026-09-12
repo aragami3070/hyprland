@@ -74,7 +74,7 @@ Item {
 
     Process {
         id: temperatureProcess
-        command: ["sh", "-c", "sensors 2>/dev/null | awk '/Package id 0:|Tctl:|CPU Temperature:/ { gsub(/[+°C]/, \"\", $3); printf \"  %d°C\", $3; exit }'"]
+        command: ["sh", "-c", "sensors 2>/dev/null | awk '/Package id 0:|Tctl:|CPU Temperature:/ { for (i = 1; i <= NF; i++) if ($i ~ /^[+-]?[0-9]+([.][0-9]+)?°C$/) { value = $i; gsub(/[+°C]/, \"\", value); printf \"  %.0f°C\", value; exit } }'"]
         running: true
         stdout: StdioCollector { onStreamFinished: root.temperatureText = text.trim() || "  --°C" }
     }
