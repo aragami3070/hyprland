@@ -12,14 +12,24 @@ Item {
     property string keyboardLayout: "--"
     property string volumeText: "  --%"
     property string cpuText: "  --%"
-    property string memoryText: "  --%"
     property string batteryText: "  --%"
     property string temperatureText: "  --°C"
     property string networkText: "⚠"
+    property string networkIpText: "IP: —"
 
     function update(process) {
         process.running = false
         process.running = true
+    }
+
+    function refreshNetwork() {
+        update(networkProcess)
+    }
+
+    function parseNetwork(text) {
+        var lines = text.trim().split("\n")
+        networkText = lines[0] || "⚠"
+        networkIpText = lines[1] || "IP: —"
     }
 
     Process {
@@ -55,16 +65,8 @@ Item {
     Timer { interval: 3000; running: true; repeat: true; onTriggered: root.update(cpuProcess) }
 
     Process {
-        id: memoryProcess
-        command: ["sh", "-c", "free -m | awk '/Mem:/ { printf \"  %d%%\", ($3 / $2) * 100 }'"]
-        running: true
-        stdout: StdioCollector { onStreamFinished: root.memoryText = text.trim() || "  --%" }
-    }
-    Timer { interval: 3000; running: true; repeat: true; onTriggered: root.update(memoryProcess) }
-
-    Process {
         id: batteryProcess
-        command: ["sh", "-c", "capacity=$(cat /sys/class/power_supply/BAT*/capacity 2>/dev/null | head -n1); status=$(cat /sys/class/power_supply/BAT*/status 2>/dev/null | head -n1); [ -z \"$capacity\" ] && exit 0; icon=\"\"; [ \"$capacity\" -lt 20 ] && icon=\"\"; [ \"$capacity\" -lt 40 ] && icon=\"\"; [ \"$capacity\" -lt 60 ] && icon=\"\"; [ \"$capacity\" -lt 80 ] && icon=\"\"; [ \"$status\" = Charging ] && icon=\"\"; printf \"%s  %s%%\" \"$icon\" \"$capacity\""]
+        command: ["sh", "-c", "capacity=$(cat /sys/class/power_supply/BAT*/capacity 2>/dev/null | head -n1); status=$(cat /sys/class/power_supply/BAT*/status 2>/dev/null | head -n1); [ -z \"$capacity\" ] && exit 0; if [ \"$status\" = Charging ]; then icon=\"\"; elif [ \"$capacity\" -lt 20 ]; then icon=\"\"; elif [ \"$capacity\" -lt 40 ]; then icon=\"\"; elif [ \"$capacity\" -lt 60 ]; then icon=\"\"; elif [ \"$capacity\" -lt 80 ]; then icon=\"\"; else icon=\"\"; fi; printf \"%s  %s%%\" \"$icon\" \"$capacity\""]
         running: true
         stdout: StdioCollector { onStreamFinished: root.batteryText = text.trim() || "" }
     }
@@ -80,9 +82,9 @@ Item {
 
     Process {
         id: networkProcess
-        command: ["sh", "-c", "if nmcli -t -f DEVICE,TYPE,STATE dev 2>/dev/null | grep -q ':wifi:connected'; then printf ''; elif nmcli -t -f DEVICE,TYPE,STATE dev 2>/dev/null | grep -q ':ethernet:connected'; then printf ''; else printf '⚠'; fi"]
+        command: ["bash", Quickshell.shellPath("network-info.sh")]
         running: true
-        stdout: StdioCollector { onStreamFinished: root.networkText = text.trim() || "⚠" }
+        stdout: StdioCollector { onStreamFinished: root.parseNetwork(text) }
     }
     Timer { interval: 5000; running: true; repeat: true; onTriggered: root.update(networkProcess) }
 }

@@ -18,6 +18,7 @@ PanelWindow {
     property string monitorName: modelData.name
     property var hyprMonitor: Hyprland.monitorFor(modelData)
     property bool calendarVisible: false
+    property bool networkShowsIp: false
 
     anchors {
         top: true
@@ -111,10 +112,9 @@ PanelWindow {
             Text { text: systemData.volumeText; color: "#f7768e"; font.family: "JetBrains Mono"; font.pixelSize: 16; MouseArea { anchors.fill: parent; onClicked: Quickshell.execDetached(["pavucontrol"]) } }
             Text { text: systemData.cpuText; color: "#ff9e64"; font.family: "JetBrains Mono"; font.pixelSize: 16 }
             Text { text: systemData.batteryText; color: "#9ece6a"; font.family: "JetBrains Mono"; font.pixelSize: 16 }
-            Text { text: systemData.memoryText; color: "#9ece6a"; font.family: "JetBrains Mono"; font.pixelSize: 16 }
             Text {
                 id: networkModule
-                text: systemData.networkText
+                text: bar.networkShowsIp ? systemData.networkIpText : systemData.networkText
                 color: "#e0af68"
                 font.family: "JetBrains Mono"
                 font.pixelSize: 16
@@ -124,8 +124,10 @@ PanelWindow {
                     onClicked: function(mouse) {
                         if (mouse.button === Qt.RightButton)
                             Quickshell.execDetached(["networkmanager_dmenu"])
-                        else
-                            Quickshell.execDetached(["sh", "-c", "ip -br address show scope global | awk '{print $1 \": \" $3}' | notify-send -i network-wired \"IP addresses\" -"])
+                        else {
+                            systemData.refreshNetwork()
+                            bar.networkShowsIp = !bar.networkShowsIp
+                        }
                     }
                 }
             }
