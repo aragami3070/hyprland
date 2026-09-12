@@ -8,10 +8,6 @@ create-ssh-key:
 	@echo "Create ssh key"
 	@sh create-ssh-key.sh
 
-install-amnezia:
-	@echo "Installing Amnezia (ONLY IF NOT INSTALLED FROM YAY)"
-	@sh install-amnezia.sh
-
 install-packages:
 	@echo "Installing packages"
 	@sh install.sh
