@@ -19,6 +19,7 @@ PanelWindow {
     property var hyprMonitor: Hyprland.monitorFor(modelData)
     property bool calendarVisible: false
     property bool networkShowsIp: false
+    property string barFont: "UbuntuMono Nerd Font"
 
     anchors {
         top: true
@@ -58,7 +59,7 @@ PanelWindow {
             Text {
                 text: ""
                 color: "#bb9af7"
-                font.family: "JetBrains Mono"
+                font.family: bar.barFont
                 font.pixelSize: 18
                 MouseArea { anchors.fill: parent; onClicked: Quickshell.execDetached(["wofi", "--show", "drun"]) }
             }
@@ -76,7 +77,7 @@ PanelWindow {
                         anchors.centerIn: parent
                         text: index + 1
                         color: bar.workspaceIsActive(index + 1) ? "#16161e" : "#bb9af7"
-                        font.family: "JetBrains Mono"
+                        font.family: bar.barFont
                         font.pixelSize: 16
                     }
                     MouseArea {
@@ -91,7 +92,7 @@ PanelWindow {
             anchors.centerIn: parent
             text: systemData.clockText
             color: "#bb9af7"
-            font.family: "JetBrains Mono"
+            font.family: bar.barFont
             font.pixelSize: 17
             MouseArea {
                 anchors.fill: parent
@@ -108,15 +109,15 @@ PanelWindow {
             anchors.rightMargin: 10
             anchors.verticalCenter: parent.verticalCenter
             spacing: 10
-            Text { text: systemData.keyboardLayout; color: "#e0af68"; font.family: "JetBrains Mono"; font.pixelSize: 16 }
-            Text { text: systemData.volumeText; color: "#f7768e"; font.family: "JetBrains Mono"; font.pixelSize: 16; MouseArea { anchors.fill: parent; onClicked: Quickshell.execDetached(["pavucontrol"]) } }
-            Text { text: systemData.cpuText; color: "#ff9e64"; font.family: "JetBrains Mono"; font.pixelSize: 16 }
-            Text { text: systemData.batteryText; color: "#9ece6a"; font.family: "JetBrains Mono"; font.pixelSize: 16 }
+            Text { text: systemData.keyboardLayout; color: "#e0af68"; font.family: bar.barFont; font.pixelSize: 16 }
+            Text { text: systemData.volumeText; color: "#f7768e"; font.family: bar.barFont; font.pixelSize: 16; MouseArea { anchors.fill: parent; onClicked: Quickshell.execDetached(["pavucontrol"]) } }
+            Text { text: systemData.cpuText; color: "#ff9e64"; font.family: bar.barFont; font.pixelSize: 16 }
+            Text { text: systemData.batteryText; color: "#9ece6a"; font.family: bar.barFont; font.pixelSize: 16 }
             Text {
                 id: networkModule
                 text: bar.networkShowsIp ? systemData.networkIpText : systemData.networkText
                 color: "#e0af68"
-                font.family: "JetBrains Mono"
+                font.family: bar.barFont
                 font.pixelSize: 16
                 MouseArea {
                     anchors.fill: parent
@@ -131,7 +132,7 @@ PanelWindow {
                     }
                 }
             }
-            Text { text: systemData.temperatureText; color: "#7dcfff"; font.family: "JetBrains Mono"; font.pixelSize: 16 }
+            Text { text: systemData.temperatureText; color: "#7dcfff"; font.family: bar.barFont; font.pixelSize: 16 }
         }
     }
 

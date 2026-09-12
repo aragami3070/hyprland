@@ -13,7 +13,7 @@ Item {
     property string volumeText: "  --%"
     property string cpuText: "  --%"
     property string batteryText: "  --%"
-    property string temperatureText: "  --°C"
+    property string temperatureText: " --°C"
     property string networkText: "⚠"
     property string networkIpText: "IP: —"
 
@@ -50,7 +50,7 @@ Item {
 
     Process {
         id: volumeProcess
-        command: ["sh", "-c", "wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{ printf \"%s %d%%\", ($3 == \"[MUTED]\" ? \"\" : \"\"), $2 * 100 }'"]
+        command: ["sh", "-c", "wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{ printf \"%s  %d%%\", ($3 == \"[MUTED]\" ? \"\" : \"\"), $2 * 100 }'"]
         running: true
         stdout: StdioCollector { onStreamFinished: root.volumeText = text.trim() || "  --%" }
     }
@@ -74,9 +74,9 @@ Item {
 
     Process {
         id: temperatureProcess
-        command: ["sh", "-c", "sensors 2>/dev/null | awk '/Package id 0:|Tctl:|CPU Temperature:/ { for (i = 1; i <= NF; i++) if ($i ~ /^[+-]?[0-9]+([.][0-9]+)?°C$/) { value = $i; gsub(/[+°C]/, \"\", value); printf \"  %.0f°C\", value; exit } }'"]
+        command: ["sh", "-c", "sensors 2>/dev/null | awk '/Package id 0:|Tctl:|CPU Temperature:/ { for (i = 1; i <= NF; i++) if ($i ~ /^[+-]?[0-9]+([.][0-9]+)?°C$/) { value = $i; gsub(/[+°C]/, \"\", value); printf \" %.0f°C\", value; exit } }'"]
         running: true
-        stdout: StdioCollector { onStreamFinished: root.temperatureText = text.trim() || "  --°C" }
+        stdout: StdioCollector { onStreamFinished: root.temperatureText = text.trim() || " --°C" }
     }
     Timer { interval: 5000; running: true; repeat: true; onTriggered: root.update(temperatureProcess) }
 
