@@ -4,6 +4,7 @@ SHELL := /usr/bin/bash
 
 SKIP_SSH_KEY ?= 0
 SSH_KEY_EMAIL ?= smirnov17612@gmail.com
+INSTALL_SCRIPTS_DIR := install-scripts
 
 .PHONY: all \
 	create-ssh-key \
@@ -12,8 +13,7 @@ SSH_KEY_EMAIL ?= smirnov17612@gmail.com
 	setup-zsh-config \
 	setup-repos \
 	setup-symlinks \
-	install-tmux-stuff \
-	setup-sddm
+	install-tmux-stuff
 
 all: install-packages \
 	create-ssh-key \
@@ -25,38 +25,38 @@ all: install-packages \
 
 create-ssh-key:
 	@echo "Setting up SSH key"
-	@SKIP_SSH_KEY="$(SKIP_SSH_KEY)" SSH_KEY_EMAIL="$(SSH_KEY_EMAIL)" bash ./create-ssh-key.sh
+	@SKIP_SSH_KEY="$(SKIP_SSH_KEY)" SSH_KEY_EMAIL="$(SSH_KEY_EMAIL)" bash "$(INSTALL_SCRIPTS_DIR)/create-ssh-key.sh"
 
 install-packages:
 	@echo "Installing packages"
-	@bash ./install.sh
+	@bash "$(INSTALL_SCRIPTS_DIR)/install.sh"
 
 install-oh-my-zsh:
 	@echo "Installing Oh My Zsh"
-	@bash ./install_oh_my_zsh.sh
+	@bash "$(INSTALL_SCRIPTS_DIR)/install_oh_my_zsh.sh"
 
 setup-zsh-config:
 	@echo "Setting up Zsh config"
-	@bash ./setup_zsh_config.sh
+	@bash "$(INSTALL_SCRIPTS_DIR)/setup_zsh_config.sh"
 
 setup-repos:
 	@echo "Setting up repos"
-	@bash ./setup_repos.sh
+	@bash "$(INSTALL_SCRIPTS_DIR)/setup_repos.sh"
 
 # TODO: Implement setup_dirs.sh and add setup-dirs to the all target.
 # setup-dirs:
 #	@echo "Setting up directories"
-#	@bash ./setup_dirs.sh
+#	@bash "$(INSTALL_SCRIPTS_DIR)/setup_dirs.sh"
 
 setup-symlinks:
 	@echo "Setting up symlinks"
-	@bash ./setup_symlinks.sh
+	@bash "$(INSTALL_SCRIPTS_DIR)/setup_symlinks.sh"
 
 install-tmux-stuff:
 	@echo "Installing TPM and loading tmux config"
-	@bash ./install_tmux_stuff.sh
+	@bash "$(INSTALL_SCRIPTS_DIR)/install_tmux_stuff.sh"
 
 # TODO: Implement in future, may be
 # setup-sddm:
 # 	@echo "Setting up sddm theme"
-#	@bash ./setup_sddm.sh
+#	@bash "$(INSTALL_SCRIPTS_DIR)/setup_sddm.sh"
