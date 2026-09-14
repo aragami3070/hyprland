@@ -2,6 +2,11 @@
 
 set -uo pipefail
 
+if ! compgen -G '/sys/class/bluetooth/hci*' >/dev/null; then
+    printf 'missing\n\n'
+    exit 0
+fi
+
 controller_info="$(bluetoothctl show 2>/dev/null || true)"
 
 if [[ -z "$controller_info" ]] || ! grep -q '^Controller ' <<< "$controller_info"; then
