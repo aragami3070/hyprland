@@ -1,8 +1,25 @@
 #!/usr/bin/env bash
 set -u
 
-wifi_device=$(nmcli -t -f DEVICE,TYPE,STATE device status 2>/dev/null \
-    | awk -F: '$2 == "wifi" && $3 == "connected" { print $1; exit }')
+device_status=$(nmcli -w 2 -t -f DEVICE,TYPE,STATE device status 2>/dev/null)
+wifi_device=$(awk -F: '$2 == "wifi" && $3 ~ /^connected/ { print $1; exit }' <<< "$device_status")
+ethernet_device=$(awk -F: '$2 == "ethernet" && $3 ~ /^connected/ { print $1; exit }' <<< "$device_status")
+
+# NetworkManager may be temporarily unavailable while the kernel link stays up.
+# Fall back to physical interfaces with carrier and a global IPv4 address.
+if [[ -z "$wifi_device" || -z "$ethernet_device" ]]; then
+    while read -r device; do
+        [[ -e "/sys/class/net/$device/device" ]] || continue
+        [[ -r "/sys/class/net/$device/carrier" ]] || continue
+        [[ $(<"/sys/class/net/$device/carrier") == 1 ]] || continue
+
+        if [[ -d "/sys/class/net/$device/wireless" ]]; then
+            [[ -n "$wifi_device" ]] || wifi_device=$device
+        else
+            [[ -n "$ethernet_device" ]] || ethernet_device=$device
+        fi
+    done < <(ip -4 -o address show scope global 2>/dev/null | awk '{ print $2 }')
+fi
 
 if [[ -n "$wifi_device" ]]; then
     signal_strength=$(nmcli -t -f IN-USE,SIGNAL device wifi list ifname "$wifi_device" 2>/dev/null \
@@ -24,9 +41,6 @@ else
     wifi_text="⚠"
     wifi_ip_text="IP: —"
 fi
-
-ethernet_device=$(nmcli -t -f DEVICE,TYPE,STATE device status 2>/dev/null \
-    | awk -F: '$2 == "ethernet" && $3 == "connected" { print $1; exit }')
 
 if [[ -n "$ethernet_device" ]]; then
     cidr=$(ip -4 -o address show dev "$ethernet_device" scope global 2>/dev/null \
