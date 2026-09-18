@@ -63,7 +63,7 @@ install_from_pacman(){
 	# NOTE: pacman install without confirm and not reinstall installed packages
 	echo -e "${blue}    Installing required packages...${reset}"
 	sudo pacman -Syu --noconfirm --needed \
-		zsh gcc neovim ripgrep wl-clipboard pipewire pam brightnessctl thunar \
+		zsh gcc neovim ripgrep wl-clipboard pipewire pam brightnessctl dunst thunar \
 		unzip firefox chromium telegram-desktop curl rustup npm yarn cmake zip \
         eza tmux postgresql docker docker-compose hyprlock hyprpaper quickshell \
 		nwg-look ttf-ubuntu-nerd ttf-ubuntu-mono-nerd wofi zoxide zathura  \

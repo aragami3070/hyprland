@@ -1,0 +1,7 @@
+[Unit]
+Description=Notify when battery charge falls below each 2%% threshold under 15%%
+
+[Service]
+Type=oneshot
+Environment=DBUS_SESSION_BUS_ADDRESS=unix:path=%t/bus
+ExecStart=/usr/bin/bash %h/.config/hyprland/daemons/low-battery-notifier/check.sh

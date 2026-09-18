@@ -1,0 +1,11 @@
+[Unit]
+Description=Check laptop battery for low-charge notifications
+
+[Timer]
+OnActiveSec=10s
+OnUnitActiveSec=30s
+AccuracySec=5s
+Unit=low-battery-notifier.service
+
+[Install]
+WantedBy=timers.target

@@ -13,6 +13,7 @@ INSTALL_SCRIPTS_DIR := install-scripts
 	setup-zsh-config \
 	setup-repos \
 	setup-symlinks \
+	setup-low-battery-notifier \
 	install-tmux-stuff
 
 all: install-packages \
@@ -21,6 +22,7 @@ all: install-packages \
 	setup-zsh-config \
 	setup-repos \
 	setup-symlinks \
+	setup-low-battery-notifier \
 	install-tmux-stuff
 
 create-ssh-key:
@@ -51,6 +53,10 @@ setup-repos:
 setup-symlinks:
 	@echo "Setting up symlinks"
 	@bash "$(INSTALL_SCRIPTS_DIR)/setup_symlinks.sh"
+
+setup-low-battery-notifier:
+	@echo "Setting up low battery notifier"
+	@bash "$(INSTALL_SCRIPTS_DIR)/setup_low_battery_notifier.sh"
 
 install-tmux-stuff:
 	@echo "Installing TPM and loading tmux config"
