@@ -305,6 +305,7 @@ hl.bind(
 )
 hl.bind(mainMod .. " + SHIFT + P", hl.dsp.exec_cmd("qs -c hyprland ipc call bar toggleMode"))
 hl.bind(mainMod .. " + F", hl.dsp.exec_cmd(menu))
+hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("networkmanager_dmenu"))
 hl.bind(mainMod .. " + SHIFT + D", function()
     monitors.toggle_mode()
 end)
