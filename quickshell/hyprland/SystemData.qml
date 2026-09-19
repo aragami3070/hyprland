@@ -31,6 +31,7 @@ Item {
     property int lastCheckedBatteryCapacity: -1
     property int lastCheckedBatteryState: -1
     property string temperatureText: " --°C"
+    property string temperatureSensorPath: ""
     readonly property var wifiDevice: networkDevice(DeviceType.Wifi)
     readonly property var ethernetDevice: networkDevice(DeviceType.Wired)
     readonly property var wifiNetwork: connectedNetwork(wifiDevice)
@@ -40,11 +41,6 @@ Item {
     property string networkIpText: wifiIpTextFor(wifiDevice, wifiNetwork)
     property string ethernetText: ethernetDevice && ethernetDevice.connected ? "󰈀" : ""
     property string ethernetIpText: ethernetIpTextFor(ethernetDevice)
-
-    function update(process) {
-        process.running = false
-        process.running = true
-    }
 
     function refreshNetwork() {
         if (networkAddressProcess.running) {
@@ -117,6 +113,22 @@ Item {
 
         previousCpuTotal = total
         previousCpuIdle = idle
+    }
+
+    function setTemperatureSensorPath(pathText) {
+        var path = pathText.trim()
+        if (path.length > 0)
+            temperatureSensorPath = path
+    }
+
+    function updateTemperature(valueText) {
+        var millidegrees = Number(valueText.trim())
+        if (!isFinite(millidegrees)) {
+            temperatureText = " --°C"
+            return
+        }
+
+        temperatureText = " " + Math.round(millidegrees / 1000) + "°C"
     }
 
     function toggleBluetooth() {
@@ -372,12 +384,26 @@ Item {
     Component.onCompleted: requestLowBatteryCheck()
 
     Process {
-        id: temperatureProcess
-        command: ["sh", "-c", "sensors 2>/dev/null | awk '/Package id 0:|Tctl:|CPU Temperature:/ { for (i = 1; i <= NF; i++) if ($i ~ /^[+-]?[0-9]+([.][0-9]+)?°C$/) { value = $i; gsub(/[+°C]/, \"\", value); printf \" %.0f°C\", value; exit } }'"]
+        command: ["bash", Quickshell.shellPath("find-cpu-temperature.sh")]
         running: true
-        stdout: StdioCollector { onStreamFinished: root.temperatureText = text.trim() || " --°C" }
+        stdout: StdioCollector { onStreamFinished: root.setTemperatureSensorPath(text) }
     }
-    Timer { interval: 5000; running: true; repeat: true; onTriggered: root.update(temperatureProcess) }
+
+    FileView {
+        id: temperatureFile
+        path: root.temperatureSensorPath
+        preload: path.length > 0
+        printErrors: false
+        onLoaded: root.updateTemperature(text())
+        onLoadFailed: root.temperatureText = " --°C"
+    }
+
+    Timer {
+        interval: 5000
+        running: root.temperatureSensorPath.length > 0
+        repeat: true
+        onTriggered: temperatureFile.reload()
+    }
 
     Process {
         id: networkAddressProcess
