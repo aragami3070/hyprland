@@ -2,7 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 
-// Reads Obsidian dailies and writes status changes back to their source file.
+// Reads Obsidian dailies on demand and writes status changes back to their source file.
 Item {
     id: root
     visible: false
@@ -186,10 +186,8 @@ Item {
     Process {
         id: tasksProcess
         command: ["bash", Quickshell.shellPath("read-dailies.sh"), root.tasksDirectory]
-        running: true
         stdout: StdioCollector { onStreamFinished: root.parseTasks(text) }
     }
-    Timer { interval: 30000; running: true; repeat: true; onTriggered: root.refresh() }
 
     Process {
         id: taskStatusProcess

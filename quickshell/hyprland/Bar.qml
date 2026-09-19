@@ -149,8 +149,10 @@ PanelWindow {
                 anchors.fill: parent
                 onClicked: {
                     bar.cpuPopupVisible = false
-                    taskService.refresh()
-                    bar.calendarVisible = !bar.calendarVisible
+                    var opening = !bar.calendarVisible
+                    bar.calendarVisible = opening
+                    if (opening)
+                        taskService.refresh()
                 }
             }
         }
