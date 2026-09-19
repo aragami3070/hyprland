@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
+import Quickshell.Services.Pipewire
 import Quickshell.Services.UPower
 
 // System values used by the bar.
@@ -12,7 +13,8 @@ Item {
     property int workspaceRevision: 0
     property string clockText: Qt.formatDateTime(systemClock.date, "dd MMM - HH:mm")
     property string keyboardLayout: "--"
-    property string volumeText: "  --%"
+    readonly property var audioSink: Pipewire.defaultAudioSink
+    property string volumeText: volumeTextFor(audioSink)
     property string cpuText: "  --%"
     property string bluetoothState: "missing"
     property string bluetoothText: ""
@@ -65,6 +67,14 @@ Item {
         var fields = event.parse(2)
         if (fields.length >= 2 && fields[1])
             keyboardLayout = fields[1]
+    }
+
+    function volumeTextFor(sink) {
+        if (!sink || !sink.ready || !sink.audio)
+            return "  --%"
+
+        var icon = sink.audio.muted ? "󰖁" : ""
+        return icon + "  " + Math.round(sink.audio.volume * 100) + "%"
     }
 
     function toggleBluetooth() {
@@ -187,13 +197,9 @@ Item {
         function onRawEvent(event) { root.handleHyprlandEvent(event) }
     }
 
-    Process {
-        id: volumeProcess
-        command: ["sh", "-c", "wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{ printf \"%s  %d%%\", ($3 == \"[MUTED]\" ? \"\" : \"\"), $2 * 100 }'"]
-        running: true
-        stdout: StdioCollector { onStreamFinished: root.volumeText = text.trim() || "  --%" }
+    PwObjectTracker {
+        objects: [root.audioSink]
     }
-    Timer { interval: 1000; running: true; repeat: true; onTriggered: root.update(volumeProcess) }
 
     Process {
         id: cpuProcess
