@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Services.UPower
 
@@ -38,6 +39,32 @@ Item {
 
     function refreshBluetooth() {
         update(bluetoothProcess)
+    }
+
+    function parseInitialKeyboardLayout(text) {
+        try {
+            var devices = JSON.parse(text)
+            var keyboards = devices.keyboards || []
+            for (var i = 0; i < keyboards.length; ++i) {
+                if (keyboards[i].main) {
+                    keyboardLayout = keyboards[i].active_keymap || "--"
+                    return
+                }
+            }
+        } catch (error) {
+            console.warn("Unable to read the initial keyboard layout:", error)
+        }
+
+        keyboardLayout = "--"
+    }
+
+    function handleHyprlandEvent(event) {
+        if (event.name !== "activelayout")
+            return
+
+        var fields = event.parse(2)
+        if (fields.length >= 2 && fields[1])
+            keyboardLayout = fields[1]
     }
 
     function toggleBluetooth() {
@@ -150,11 +177,15 @@ Item {
 
     Process {
         id: layoutProcess
-        command: ["sh", "-c", "hyprctl devices -j | jq -r '.keyboards[] | select(.main==true) | .active_keymap' | head -n1"]
+        command: ["hyprctl", "devices", "-j"]
         running: true
-        stdout: StdioCollector { onStreamFinished: root.keyboardLayout = text.trim() || "--" }
+        stdout: StdioCollector { onStreamFinished: root.parseInitialKeyboardLayout(text) }
     }
-    Timer { interval: 1000; running: true; repeat: true; onTriggered: root.update(layoutProcess) }
+
+    Connections {
+        target: Hyprland
+        function onRawEvent(event) { root.handleHyprlandEvent(event) }
+    }
 
     Process {
         id: volumeProcess
