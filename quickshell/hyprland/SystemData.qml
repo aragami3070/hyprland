@@ -18,6 +18,8 @@ Item {
     readonly property var audioSink: Pipewire.defaultAudioSink
     property string volumeText: volumeTextFor(audioSink)
     property string cpuText: "  --%"
+    property double previousCpuTotal: -1
+    property double previousCpuIdle: -1
     readonly property var bluetoothAdapter: Bluetooth.defaultAdapter
     property int connectedBluetoothDevices: connectedBluetoothDeviceCount()
     property string bluetoothState: bluetoothStateFor(bluetoothAdapter, connectedBluetoothDevices)
@@ -85,6 +87,36 @@ Item {
 
         var icon = sink.audio.muted ? "󰖁" : ""
         return icon + "  " + Math.round(sink.audio.volume * 100) + "%"
+    }
+
+    function updateCpuUsage(statText) {
+        var firstLine = statText.split("\n")[0].trim().split(/\s+/)
+        if (firstLine.length < 5 || firstLine[0] !== "cpu")
+            return
+
+        var values = []
+        for (var i = 1; i < firstLine.length; ++i) {
+            var value = Number(firstLine[i])
+            if (!isFinite(value))
+                return
+            values.push(value)
+        }
+
+        var idle = values[3] + (values.length > 4 ? values[4] : 0)
+        var total = 0
+        var countedFields = Math.min(values.length, 8)
+        for (var j = 0; j < countedFields; ++j)
+            total += values[j]
+
+        if (previousCpuTotal >= 0 && total > previousCpuTotal) {
+            var totalDelta = total - previousCpuTotal
+            var idleDelta = idle - previousCpuIdle
+            var usage = Math.round(100 * (totalDelta - idleDelta) / totalDelta)
+            cpuText = "  " + Math.max(0, Math.min(100, usage)) + "%"
+        }
+
+        previousCpuTotal = total
+        previousCpuIdle = idle
     }
 
     function toggleBluetooth() {
@@ -303,13 +335,19 @@ Item {
         objects: [root.audioSink]
     }
 
-    Process {
-        id: cpuProcess
-        command: ["sh", "-c", "top -bn1 | awk '/Cpu\\(s\\)/ { printf \"  %d%%\", 100 - $8 }'"]
-        running: true
-        stdout: StdioCollector { onStreamFinished: root.cpuText = text.trim() || "  --%" }
+    FileView {
+        id: cpuStatFile
+        path: "/proc/stat"
+        preload: true
+        onLoaded: root.updateCpuUsage(text())
     }
-    Timer { interval: 3000; running: true; repeat: true; onTriggered: root.update(cpuProcess) }
+
+    Timer {
+        interval: 3000
+        running: true
+        repeat: true
+        onTriggered: cpuStatFile.reload()
+    }
 
     Connections {
         target: root.batteryDevice
