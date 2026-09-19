@@ -1,46 +1,74 @@
+/* AmitGolden layout with the translucent 7KIR7 window background. */
+@define-color clear rgba(0, 0, 0, 0);
+@define-color surface #1a1b26;
+@define-color border #292e42;
+@define-color foreground #ffffff;
+@define-color accent #bb9af7;
+@define-color accent-foreground #16161e;
+
 window {
-  background-color: #1a1b26;
-}
-
-* {
-  font-family: "Jetbrains Mono";
-  color: #fff;
-}
-
-#scroll {
-  padding: 0.5rem;
+  margin: 2px;
+  border: 2px solid @border;
+  background-color: rgba(41, 46, 66, 0.6);
+  border-radius: 10px;
+  font-family: "UbuntuMono Nerd Font";
+  font-size: 20px;
 }
 
 #input {
-  background-color: #1a1b26;
-  color: #c0caf5;
+  padding: 2px;
+  margin: 4px;
+  margin-bottom: 8px;
+  border: none;
+  color: @foreground;
+  background-color: @surface;
   outline: none;
-  box-shadow: none;
-  border: 0;
-  border-radius: 0;
-  font-size: 1rem;
-  padding: 0.5rem;
 }
 
 #inner-box {
-  margin: 0.5rem;
-  font-size: 1rem;
+  margin: 2px;
+  border: 0;
+  background-color: @clear;
+  border-radius: 8px;
+}
+
+#outer-box {
+  margin: 5px;
+  border: none;
+  border-radius: 8px;
+  background-color: @clear;
+}
+
+#scroll {
+  margin: 0;
+  border: none;
 }
 
 #img {
-  margin: 10px 10px;
+  margin-right: 8px;
 }
 
-#entry {
-  border-radius: 0.5rem;
-}
-
-#entry:selected {
-  background-color: #c0caf5;
-  outline: none;
+#text {
+  color: @foreground;
 }
 
 #text:selected {
-  color: #1a1b26;
+  color: @accent-foreground;
+  margin: 0;
+  border: none;
+  border-radius: 8px;
 }
 
+#entry {
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  background-color: transparent;
+}
+
+#entry:selected {
+  margin: 0;
+  border: none;
+  border-radius: 8px;
+  background-color: @accent;
+}
