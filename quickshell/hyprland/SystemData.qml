@@ -3,6 +3,7 @@ import Quickshell
 import Quickshell.Bluetooth
 import Quickshell.Hyprland
 import Quickshell.Io
+import Quickshell.Networking
 import Quickshell.Services.Pipewire
 import Quickshell.Services.UPower
 
@@ -28,10 +29,15 @@ Item {
     property int lastCheckedBatteryCapacity: -1
     property int lastCheckedBatteryState: -1
     property string temperatureText: " --°C"
-    property string networkText: "⚠"
-    property string networkIpText: "IP: —"
-    property string ethernetText: ""
-    property string ethernetIpText: ""
+    readonly property var wifiDevice: networkDevice(DeviceType.Wifi)
+    readonly property var ethernetDevice: networkDevice(DeviceType.Wired)
+    readonly property var wifiNetwork: connectedNetwork(wifiDevice)
+    property var ipv4ByDevice: ({})
+    property bool networkRefreshPending: false
+    property string networkText: wifiTextFor(wifiDevice, wifiNetwork)
+    property string networkIpText: wifiIpTextFor(wifiDevice, wifiNetwork)
+    property string ethernetText: ethernetDevice && ethernetDevice.connected ? "󰈀" : ""
+    property string ethernetIpText: ethernetIpTextFor(ethernetDevice)
 
     function update(process) {
         process.running = false
@@ -39,7 +45,12 @@ Item {
     }
 
     function refreshNetwork() {
-        update(networkProcess)
+        if (networkAddressProcess.running) {
+            networkRefreshPending = true
+            return
+        }
+
+        networkAddressProcess.running = true
     }
 
     function parseInitialKeyboardLayout(text) {
@@ -114,12 +125,81 @@ Item {
         return connectedCount > 0 ? "  " + connectedCount : ""
     }
 
-    function parseNetwork(text) {
-        var lines = text.replace(/\r/g, "").split("\n")
-        networkText = lines[0] || "⚠"
-        networkIpText = lines[1] || "IP: —"
-        ethernetText = lines[2] || ""
-        ethernetIpText = lines[3] || ""
+    function networkDevice(type) {
+        var devices = Networking.devices.values
+        var fallback = null
+
+        for (var i = 0; i < devices.length; ++i) {
+            if (devices[i].type !== type)
+                continue
+            if (devices[i].connected)
+                return devices[i]
+            if (!fallback)
+                fallback = devices[i]
+        }
+
+        return fallback
+    }
+
+    function connectedNetwork(device) {
+        if (!device)
+            return null
+
+        var networks = device.networks.values
+        for (var i = 0; i < networks.length; ++i) {
+            if (networks[i].connected)
+                return networks[i]
+        }
+
+        return null
+    }
+
+    function wifiSignalPercent(network) {
+        if (!network)
+            return 0
+        var strength = network.signalStrength
+        return Math.max(0, Math.min(100, Math.round(strength <= 1 ? strength * 100 : strength)))
+    }
+
+    function wifiTextFor(device, network) {
+        if (!device || !device.connected || !network)
+            return "⚠"
+        return "  " + wifiSignalPercent(network) + "%"
+    }
+
+    function wifiIpTextFor(device, network) {
+        if (!device || !device.connected || !network)
+            return "IP: —"
+        var cidr = ipv4ByDevice[device.name] || "IP —"
+        return " " + device.name + " @ " + network.name + ": " + cidr
+    }
+
+    function ethernetIpTextFor(device) {
+        if (!device || !device.connected)
+            return ""
+        var cidr = ipv4ByDevice[device.name] || "IP —"
+        return device.name + ": " + cidr
+    }
+
+    function parseNetworkAddresses(text) {
+        var addresses = {}
+
+        try {
+            var links = JSON.parse(text)
+            for (var i = 0; i < links.length; ++i) {
+                var entries = links[i].addr_info || []
+                for (var j = 0; j < entries.length; ++j) {
+                    if (entries[j].family === "inet" && entries[j].scope === "global") {
+                        addresses[links[i].ifname] = entries[j].local + "/" + entries[j].prefixlen
+                        break
+                    }
+                }
+            }
+        } catch (error) {
+            console.warn("Unable to read IPv4 addresses:", error)
+        }
+
+        ipv4ByDevice = addresses
     }
 
     function formatDuration(seconds) {
@@ -262,10 +342,29 @@ Item {
     Timer { interval: 5000; running: true; repeat: true; onTriggered: root.update(temperatureProcess) }
 
     Process {
-        id: networkProcess
-        command: ["bash", Quickshell.shellPath("network-info.sh")]
+        id: networkAddressProcess
+        command: ["ip", "-j", "-4", "address", "show", "scope", "global"]
         running: true
-        stdout: StdioCollector { onStreamFinished: root.parseNetwork(text) }
+        stdout: StdioCollector { onStreamFinished: root.parseNetworkAddresses(text) }
+
+        onExited: {
+            if (root.networkRefreshPending) {
+                root.networkRefreshPending = false
+                Qt.callLater(root.refreshNetwork)
+            }
+        }
     }
-    Timer { interval: 5000; running: true; repeat: true; onTriggered: root.update(networkProcess) }
+
+    Process {
+        command: ["ip", "-4", "monitor", "address"]
+        running: true
+        stdout: SplitParser { onRead: networkRefreshDelay.restart() }
+    }
+
+    Timer {
+        id: networkRefreshDelay
+        interval: 150
+        repeat: false
+        onTriggered: root.refreshNetwork()
+    }
 }
