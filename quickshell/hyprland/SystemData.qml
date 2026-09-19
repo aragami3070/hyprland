@@ -9,7 +9,7 @@ Item {
     visible: false
 
     property int workspaceRevision: 0
-    property string clockText: ""
+    property string clockText: Qt.formatDateTime(systemClock.date, "dd MMM - HH:mm")
     property string keyboardLayout: "--"
     property string volumeText: "  --%"
     property string cpuText: "  --%"
@@ -143,13 +143,10 @@ Item {
         bluetoothText = lines[1] || ""
     }
 
-    Process {
-        id: clockProcess
-        command: ["date", "+%d %b - %H:%M"]
-        running: true
-        stdout: StdioCollector { onStreamFinished: root.clockText = text.trim() }
+    SystemClock {
+        id: systemClock
+        precision: SystemClock.Minutes
     }
-    Timer { interval: 1000; running: true; repeat: true; onTriggered: root.update(clockProcess) }
 
     Process {
         id: layoutProcess
