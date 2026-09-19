@@ -1,8 +1,9 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import Quickshell.Services.UPower
 
-// System values used by the bar. Keeping the polling here leaves the UI declarative.
+// System values used by the bar.
 Item {
     id: root
     visible: false
@@ -14,8 +15,12 @@ Item {
     property string cpuText: "  --%"
     property string bluetoothState: "missing"
     property string bluetoothText: ""
-    property string batteryText: "  --%"
-    property string batteryTooltip: "Оставшееся время пока неизвестно"
+    readonly property var batteryDevice: UPower.displayDevice
+    property string batteryText: batteryTextFor(batteryDevice)
+    property string batteryTooltip: batteryTooltipFor(batteryDevice)
+    property bool lowBatteryCheckPending: false
+    property int lastCheckedBatteryCapacity: -1
+    property int lastCheckedBatteryState: -1
     property string temperatureText: " --°C"
     property string networkText: "⚠"
     property string networkIpText: "IP: —"
@@ -52,10 +57,84 @@ Item {
         ethernetIpText = lines[3] || ""
     }
 
-    function parseBattery(text) {
-        var lines = text.trim().split("\n")
-        batteryText = lines[0] || ""
-        batteryTooltip = lines[1] || "Оставшееся время пока неизвестно"
+    function formatDuration(seconds) {
+        var totalMinutes = Math.max(0, Math.round(seconds / 60))
+        var days = Math.floor(totalMinutes / 1440)
+        var hours = Math.floor((totalMinutes % 1440) / 60)
+        var minutes = totalMinutes % 60
+
+        if (days > 0)
+            return days + " д " + hours + " ч"
+        if (hours > 0)
+            return hours + " ч " + minutes + " мин"
+        return minutes + " мин"
+    }
+
+    function batteryCapacity(device) {
+        if (!device)
+            return 0
+        return Math.max(0, Math.min(100, Math.round(device.percentage * 100)))
+    }
+
+    function batteryTextFor(device) {
+        if (!device || !device.ready || !device.isPresent)
+            return "  --%"
+
+        var capacity = batteryCapacity(device)
+        var icon = ""
+        if (device.state === UPowerDeviceState.Charging)
+            icon = ""
+        else if (capacity < 20)
+            icon = ""
+        else if (capacity < 40)
+            icon = ""
+        else if (capacity < 60)
+            icon = ""
+        else if (capacity < 80)
+            icon = ""
+
+        return icon + "  " + capacity + "%"
+    }
+
+    function batteryTooltipFor(device) {
+        if (!device || !device.ready || !device.isPresent)
+            return "Батарея не найдена"
+
+        if (device.state === UPowerDeviceState.FullyCharged)
+            return "Батарея полностью заряжена"
+
+        if (device.state === UPowerDeviceState.Discharging) {
+            if (device.timeToEmpty > 0)
+                return "Осталось примерно " + formatDuration(device.timeToEmpty)
+            return "Оставшееся время пока неизвестно"
+        }
+
+        if (device.state === UPowerDeviceState.Charging) {
+            if (device.timeToFull > 0)
+                return "До полного заряда примерно " + formatDuration(device.timeToFull)
+            return "Время до полного заряда пока неизвестно"
+        }
+
+        return "Состояние: " + UPowerDeviceState.toString(device.state)
+    }
+
+    function requestLowBatteryCheck() {
+        if (!batteryDevice || !batteryDevice.ready)
+            return
+
+        var capacity = batteryCapacity(batteryDevice)
+        var state = batteryDevice.state
+        if (capacity === lastCheckedBatteryCapacity && state === lastCheckedBatteryState)
+            return
+
+        if (lowBatteryProcess.running) {
+            lowBatteryCheckPending = true
+            return
+        }
+
+        lastCheckedBatteryCapacity = capacity
+        lastCheckedBatteryState = state
+        lowBatteryProcess.running = true
     }
 
     function parseBluetooth(text) {
@@ -116,13 +195,27 @@ Item {
         onTriggered: root.refreshBluetooth()
     }
 
-    Process {
-        id: batteryProcess
-        command: ["bash", Quickshell.shellPath("battery-info.sh")]
-        running: true
-        stdout: StdioCollector { onStreamFinished: root.parseBattery(text) }
+    Connections {
+        target: root.batteryDevice
+
+        function onReadyChanged() { root.requestLowBatteryCheck() }
+        function onPercentageChanged() { root.requestLowBatteryCheck() }
+        function onStateChanged() { root.requestLowBatteryCheck() }
     }
-    Timer { interval: 10000; running: true; repeat: true; onTriggered: root.update(batteryProcess) }
+
+    Process {
+        id: lowBatteryProcess
+        command: ["systemctl", "--user", "start", "low-battery-notifier.service"]
+
+        onExited: {
+            if (root.lowBatteryCheckPending) {
+                root.lowBatteryCheckPending = false
+                Qt.callLater(root.requestLowBatteryCheck)
+            }
+        }
+    }
+
+    Component.onCompleted: requestLowBatteryCheck()
 
     Process {
         id: temperatureProcess
