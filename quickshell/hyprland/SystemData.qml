@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import Quickshell.Bluetooth
 import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Services.Pipewire
@@ -16,8 +17,10 @@ Item {
     readonly property var audioSink: Pipewire.defaultAudioSink
     property string volumeText: volumeTextFor(audioSink)
     property string cpuText: "  --%"
-    property string bluetoothState: "missing"
-    property string bluetoothText: ""
+    readonly property var bluetoothAdapter: Bluetooth.defaultAdapter
+    property int connectedBluetoothDevices: connectedBluetoothDeviceCount()
+    property string bluetoothState: bluetoothStateFor(bluetoothAdapter, connectedBluetoothDevices)
+    property string bluetoothText: bluetoothTextFor(bluetoothState, connectedBluetoothDevices)
     readonly property var batteryDevice: UPower.displayDevice
     property string batteryText: batteryTextFor(batteryDevice)
     property string batteryTooltip: batteryTooltipFor(batteryDevice)
@@ -37,10 +40,6 @@ Item {
 
     function refreshNetwork() {
         update(networkProcess)
-    }
-
-    function refreshBluetooth() {
-        update(bluetoothProcess)
     }
 
     function parseInitialKeyboardLayout(text) {
@@ -78,12 +77,41 @@ Item {
     }
 
     function toggleBluetooth() {
-        if (bluetoothState === "missing" || bluetoothToggleProcess.running)
+        if (!bluetoothAdapter
+                || bluetoothAdapter.state === BluetoothAdapterState.Enabling
+                || bluetoothAdapter.state === BluetoothAdapterState.Disabling)
             return
 
-        var nextPower = bluetoothState === "off" ? "on" : "off"
-        bluetoothToggleProcess.command = ["bluetoothctl", "power", nextPower]
-        bluetoothToggleProcess.running = true
+        bluetoothAdapter.enabled = !bluetoothAdapter.enabled
+    }
+
+    function connectedBluetoothDeviceCount() {
+        var adapter = bluetoothAdapter
+        var devices = Bluetooth.devices.values
+        var count = 0
+
+        for (var i = 0; i < devices.length; ++i) {
+            if (devices[i].adapter === adapter && devices[i].connected)
+                count++
+        }
+
+        return count
+    }
+
+    function bluetoothStateFor(adapter, connectedCount) {
+        if (!adapter)
+            return "missing"
+        if (!adapter.enabled)
+            return "off"
+        return connectedCount > 0 ? "connected" : "on"
+    }
+
+    function bluetoothTextFor(state, connectedCount) {
+        if (state === "missing")
+            return ""
+        if (state === "off")
+            return "󰂲"
+        return connectedCount > 0 ? "  " + connectedCount : ""
     }
 
     function parseNetwork(text) {
@@ -174,12 +202,6 @@ Item {
         lowBatteryProcess.running = true
     }
 
-    function parseBluetooth(text) {
-        var lines = text.replace(/\r/g, "").split("\n")
-        bluetoothState = lines[0] || "missing"
-        bluetoothText = lines[1] || ""
-    }
-
     SystemClock {
         id: systemClock
         precision: SystemClock.Minutes
@@ -208,26 +230,6 @@ Item {
         stdout: StdioCollector { onStreamFinished: root.cpuText = text.trim() || "  --%" }
     }
     Timer { interval: 3000; running: true; repeat: true; onTriggered: root.update(cpuProcess) }
-
-    Process {
-        id: bluetoothProcess
-        command: ["bash", Quickshell.shellPath("bluetooth-info.sh")]
-        running: true
-        stdout: StdioCollector { onStreamFinished: root.parseBluetooth(text) }
-    }
-    Timer { interval: 5000; running: true; repeat: true; onTriggered: root.update(bluetoothProcess) }
-
-    Process {
-        id: bluetoothToggleProcess
-        onExited: bluetoothRefreshAfterToggle.restart()
-    }
-
-    Timer {
-        id: bluetoothRefreshAfterToggle
-        interval: 300
-        repeat: false
-        onTriggered: root.refreshBluetooth()
-    }
 
     Connections {
         target: root.batteryDevice
