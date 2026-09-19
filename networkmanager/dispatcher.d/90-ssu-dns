@@ -1,0 +1,52 @@
+#!/bin/sh
+
+# NetworkManager invokes dispatcher hooks only when a network event occurs.
+# Replace the first resolver for Saratov State University Wi-Fi while keeping
+# the remaining DHCP-provided resolvers and search domains intact.
+
+set -eu
+
+action="${2:-}"
+
+case "$action" in
+    up|dhcp4-change|reapply)
+        ;;
+    *)
+        exit 0
+        ;;
+esac
+
+[ -n "${CONNECTION_UUID:-}" ] || exit 0
+
+ssid="$(nmcli -g 802-11-wireless.ssid connection show "$CONNECTION_UUID" 2>/dev/null || true)"
+case "$ssid" in
+    ssu_internet*)
+        ;;
+    *)
+        exit 0
+        ;;
+esac
+
+resolv_conf="${SSU_RESOLV_CONF:-/etc/resolv.conf}"
+[ -f "$resolv_conf" ] || exit 0
+
+first_nameserver="$(awk '/^[[:space:]]*nameserver[[:space:]]+/ { print $2; exit }' "$resolv_conf")"
+[ -n "$first_nameserver" ] || exit 0
+[ "$first_nameserver" = 8.8.8.8 ] && exit 0
+
+tmp="$(mktemp /tmp/ssu-dns.XXXXXX)"
+trap 'rm -f -- "$tmp"' EXIT HUP INT TERM
+
+awk '
+    !replaced && /^[[:space:]]*nameserver[[:space:]]+/ {
+        match($0, /^[[:space:]]*/)
+        print substr($0, 1, RLENGTH) "nameserver 8.8.8.8"
+        replaced = 1
+        next
+    }
+    { print }
+' "$resolv_conf" > "$tmp"
+
+# Write through the existing file so its owner, mode and inode stay unchanged.
+cat "$tmp" > "$resolv_conf"
+logger -t ssu-dns "SSID $ssid: replaced first DNS server ($first_nameserver -> 8.8.8.8)"

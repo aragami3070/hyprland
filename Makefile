@@ -13,6 +13,7 @@ INSTALL_SCRIPTS_DIR := install-scripts
 	setup-zsh-config \
 	setup-repos \
 	setup-symlinks \
+	setup-ssu-dns \
 	setup-low-battery-notifier \
 	install-tmux-stuff
 
@@ -57,6 +58,10 @@ setup-symlinks:
 setup-low-battery-notifier:
 	@echo "Setting up low battery notifier"
 	@bash "$(INSTALL_SCRIPTS_DIR)/setup_low_battery_notifier.sh"
+
+setup-ssu-dns:
+	@echo "Setting up SSU DNS dispatcher hook"
+	@bash "$(INSTALL_SCRIPTS_DIR)/setup_ssu_dns.sh"
 
 install-tmux-stuff:
 	@echo "Installing TPM and loading tmux config"
